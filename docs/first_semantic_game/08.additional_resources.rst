@@ -1,0 +1,21 @@
+Additional Resources
+====================
+
+For Godot things
+Official Godot Tutorial
+
+C# things
+
+Semantic-kernel things
+
+Game development things
+
+
+
+For AI simulation things
+
+Smallville
+AI-Town
+Cognitive maps FAIR paper
+Embodied AI
+

@@ -1,0 +1,6 @@
+Evaluating Guesses
+===================
+
+In this section, we will learn how to extend the ``ChatAI`` node so that we can evaluate the
+player's guesses to the troll's riddle. By the end, we will have a troll that disappears when the
+correct guess is provided.

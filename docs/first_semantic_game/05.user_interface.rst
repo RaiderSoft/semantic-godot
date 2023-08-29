@@ -1,0 +1,407 @@
+The User Interface
+==================
+
+In this section, we will set up the user interface and write a script that updates the user
+interface based on the ``ChatPlayer`` node set up in the previous section. We'll also need to make
+a new main scene to handle the connection between the level scene (already created) and the UI. By
+the end of this section, we should be able to do the following from the user interface:
+
+* See a constantly updated control hint message.
+* See when other ``ChatAgents`` are nearby.
+* Start and end a conversation with a nearby ``ChatAgent``.
+* Write, send, and receive messages while in a conversation.
+
+Part 1: Adjusing ChatPlayer
+---------------------------
+
+Before we start on the UI, we first need to adjust the ``ChatPlayer`` script that we created in the
+last section. Right now it just prints messages out to console, but we'd like for it to instead
+emit signals that can be picked up by the user interface. We'll also add in a ``_controlHint``
+property that will be used to notify the player of possible interactions.
+
+Emitting Signals
+^^^^^^^^^^^^^^^^
+
+First, let's declare the signals used to notify the UI of updates/changes. There will be six of
+these.
+
+.. code-block:: csharp
+
+    // Signals for connecting to the UI
+    [Signal]
+    public delegate void ControlHintUpdatedEventHandler(string controlHint);
+    [Signal]
+    public delegate void ChatEntityAddedEventHandler(ChatEntity chatEntity);
+    [Signal]
+    public delegate void ChatEntityRemovedEventHandler(ChatEntity chatEntity);
+    [Signal]
+    public delegate void ConvoStartedEventHandler();
+    [Signal]
+    public delegate void ConvoEndedEventHandler();
+    [Signal]
+    public delegate void MsgAddedEventHandler(ChatEntity sender, string msg);
+
+Next, we can rework the functions that we wrote earlier. Instead of notifying the player by
+printing to the console, we'll emit a signal that will be picked up by the UI and displayed to the
+player. So everywhere we have ``GD.Print()`` statements, we'll instead use ``EmitSignal()``.
+
+1. Inside the method ``OnChatEntityEntered()`` write:
+
+.. code-block:: csharp
+
+    // Emit a signal that a new ChatEntity was added (for UI)
+    EmitSignal(SignalName.ChatEntityAdded, enteringChatEntity);
+
+1. Inside ``OnChatEntityExited()`` write:
+
+.. code-block:: csharp
+
+    // Emit a signal that a new ChatEntity was removed (for UI)
+    EmitSignal(SignalName.ChatEntityRemoved, exitingChatEntity);
+
+1. Inside ``StartConvo()`` write:
+
+.. code-block:: csharp
+
+        // Emit a signal that a conversation was started (for UI)
+        EmitSignal(SignalName.ConvoStarted);
+
+1. Inside ``EndConvo()`` write:
+
+.. code-block:: csharp
+
+        // Emit a signal that a conversation was ended (for UI)
+        EmitSignal(SignalName.ConvoEnded);
+
+1. Inside ``SendMsg()`` write:
+
+.. code-block:: csharp
+
+        // Emit a signal that there is a new message (for UI)
+        EmitSignal(SignalName.MsgAdded, this, msg);
+
+1. And inside ``ReceiveMsg()`` write:
+
+.. code-block:: csharp
+
+        // Emit a signal that there is a new message (for UI)
+        EmitSignal(SignalName.MsgAdded, _inConvoWith, msg);
+
+Control Hints
+^^^^^^^^^^^^^
+
+**[EXPAND]** The ``_controlHint`` property:
+
+.. code-block:: csharp
+
+    // The current control hint
+    private string _controlHint;
+
+**[EXPAND]** The ``_Process()`` method used to keep it updated:
+
+.. code-block:: csharp
+
+    // Called every tick
+    public override void _Process(double delta)
+    {
+        // Update the control hint
+        string newControlHint = "Use the arrow keys to move";
+        if (InConvo())
+        {
+            newControlHint = "Press ESC to end the conversation";
+        }
+        else
+        {
+            ChatEntity nearestChatEntity = NearestChatEntity();
+            if (nearestChatEntity != null)
+                newControlHint = "Press SHIFT to talk with " + nearestChatEntity.ChatName;
+        }
+        if (newControlHint != _controlHint)
+        {
+            _controlHint = newControlHint;
+            EmitSignal(SignalName.ControlHintUpdated, _controlHint);
+        }
+    }
+
+Part 2: The User Interface Scene
+--------------------------------
+
+Setting Up the Scene
+^^^^^^^^^^^^^^^^^^^^
+
+The user interface scene is provided premade in a zip file. Download the file and extract the
+contents into a folder called "user_interface". You should see the following files:
+
+* *info_label.tscn*
+* *info_style.tres*
+* *NewMsgEdit.cs*
+* *user_interface.tscn*
+* *v_scroll_container.tscn*
+
+Double-click on *user_interface.tscn* to open up the main scene for the user interface. You should
+see a scene made up of various control nodes that has three main sections labeled "Control Hint",
+"Nearby Entities", and "Messages". These sections correspond to the nodes ``ControlHintGroup``,
+``EntityGroup``, and ``MsgGroup`` with their children.
+
+Writing the Script
+^^^^^^^^^^^^^^^^^^
+
+Now, we'll add the main script for interacting with the UI. It will be attached to the root node
+of the scene (``UserInterface``) and will listen for signals from the ``ChatPlayer`` node and update
+it when necessary.
+
+Add a C# script to the UserInterface node. Save the script as "UserInterface.cs".
+
+**Properties**
+
+First, we'll add a property that will reference the ``ChatPlayer`` node attached to the
+*seraphis.tscn* scene. We won't worry about setting it from inside the UI script and will instead
+have it set by the main scene (up next).
+
+.. code-block:: csharp
+
+    // A reference to the ChatPlayer node (will be set by dependency injection via Main.cs)
+    public ChatPlayer MyChatPlayer;
+
+Next, we'll add properties that will hold references to the various child nodes of the
+UI scene. This will make them easier to access from the code. (These will have values assigned to
+them later in the ``_Ready()`` method.)
+
+.. code-block:: csharp
+
+    // Various nodes that will need to be updated during gameplay
+    private Label _controlHintInfo;
+    private VBoxContainer _entityBox;
+    private ScrollContainer _msgScroll;
+    private VBoxContainer _msgBox;
+    private TextEdit _newMsgEdit;
+    private Button _newMsgSend;
+
+We'll also have a property that will reference the *info_label.tscn* scene that we made earlier.
+This will be used to add labels dynamically for nearby entities and messages.
+
+.. code-block:: csharp
+
+    // Scenes that will need to be instanced during gameplay
+    private PackedScene _infoLabelScene = GD.Load<PackedScene>("res://user_interface/info_label.tscn");
+
+The last property that we'll have is a flag to indicate whether a new message has just been added
+to the UI. This will be used to help us keep the messages' scroll container scrolled all the way to
+the bottom so that the newest messages are always visible.
+
+.. code-block:: csharp
+
+    // Flag for when a message has been added to the message box and so we need to scroll to end
+    private bool _msgBoxHasNewMsg = false;
+
+**Methods**
+
+Now on to methods. First we'll override the node's ``_Ready()`` method. In this method, we'll
+assign nodes to the properties declared earlier and we'll connect up a method to handle what
+happens when the send button is pressed. We'll also call a helper function
+``ConnectPlayerSignals()`` that connects all the relevant signals of ``ChatPlayer`` to methods in
+this script. (Note: We use ``CallDeferred()`` here so that we can be sure ``ChatPlayer`` has been
+loaded in the scene and ``MyChatPlayer`` has been set to reference it before we try to access it.)
+
+.. code-block:: csharp
+
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
+    {
+        // Get all the various child nodes
+        _controlHintInfo = GetNodeOrNull<Label>("ControlHintGroup/InfoLabel");
+        _entityBox = GetNodeOrNull<VBoxContainer>("EntityGroup/VScrollContainer/VBoxContainer");
+        _msgScroll = GetNodeOrNull<ScrollContainer>("MsgGroup/VScrollContainer");
+        _msgBox = GetNodeOrNull<VBoxContainer>("MsgGroup/VScrollContainer/VBoxContainer");
+        _newMsgEdit = GetNodeOrNull<TextEdit>("MsgGroup/HBoxContainer/TextEdit");
+        _newMsgSend = GetNodeOrNull<Button>("MsgGroup/HBoxContainer/Button");
+
+        // Connect to the send message button (and propogate the signal)
+        if (_newMsgSend != null)
+            _newMsgSend.Pressed += OnNewMsgSendPressed;
+        
+        // Connect to the signals of the ChatPlayer
+        CallDeferred("ConnectPlayerSignals");
+    }
+
+    // Connects to the various signals of the currently registered ChatPlayer
+    private void ConnectPlayerSignals()
+    {
+        MyChatPlayer.ControlHintUpdated += SetControlHint;
+        MyChatPlayer.ChatEntityAdded += AddEntity;
+        MyChatPlayer.ChatEntityRemoved += RemoveEntity;
+        MyChatPlayer.ConvoStarted += EnableNewMsg;
+        MyChatPlayer.ConvoEnded += DisableNewMsg;
+        MyChatPlayer.MsgAdded += AddMsg;
+    }
+
+Next, we'll override the node's ``_Process()`` method. In this method, if a new message has just
+arrived, we'll make sure the ScrollContainer is scrolled all the way to the bottom.
+
+.. code-block:: csharp
+
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta)
+    {
+        // Check if a new message has been added to the message box and scroll if needed
+        if (_justAddedNewMsg)
+        {
+            _msgScroll.ScrollVertical = Mathf.RoundToInt(_msgScroll.GetVScrollBar().MaxValue);
+            _justAddedNewMsg = false;
+        }
+    }
+
+Next, write a method that handles setting the text of the "Control Hint" section.
+
+.. code-block:: csharp
+
+    // Set the text of the control hint label
+    public void SetControlHint(string controlHint)
+    {
+        _controlHintInfo.Text = controlHint;
+    }
+
+Also, write the following methods for adding or removing an entity from the "Nearby Entities"
+section. When adding an entity, we'll need to create a new instance of *info_label.tscn* and add it
+as a child in the appropriate place. When removing, we'll need to search through all the ``Labels``
+and find the one that matches the entity we are trying to remove.
+
+.. code-block:: csharp
+
+    // Add a ChatEntity to the entity box
+    public void AddEntity(ChatEntity newEntity)
+    {
+        // Add the new entity to the box
+        Label newEntityLabel = _infoLabelScene.Instantiate<Label>();
+        newEntityLabel.Text = newEntity.ChatName;
+        _entityBox.AddChild(newEntityLabel);
+    }
+
+    // Remove a ChatEntity from the entity box
+    public void RemoveEntity(ChatEntity oldEntity)
+    {
+        string entityString = oldEntity.ChatName;
+
+        // Look through all the entities in the box
+        foreach (Node child in _entityBox.GetChildren())
+        {
+            // If we find the entity, remove it and exit
+            if (child is Label entityLabel && entityLabel.Text == entityString)
+            {
+                entityLabel.QueueFree();
+                break;
+            }
+        }
+    }
+
+The next method will determine what happens when the send button is pressed (or when the enter key
+is pressed). We just need to call the SendMsg function of the ``ChatPlayer`` node.
+
+.. code-block:: csharp
+
+    // Called when the send button is pressed
+    public void OnNewMsgSendPressed()
+    {
+        MyChatPlayer.SendMsg(_newMsgEdit.Text);
+        _newMsgEdit.Text = "";
+    }
+
+The following two methods are for enabling and disabling text input and button presses in the UI.
+They will be enabled when the player is in a conversation and disabled when they are not.
+
+.. code-block:: csharp
+
+    // Enable the controls for typing and sending a new message
+    public void EnableNewMsg()
+    {
+        // Enable controls
+        _newMsgEdit.Editable = true;
+        _newMsgSend.Disabled = false;
+
+        // Put focus on the text editor
+        _newMsgEdit.GrabFocus();
+    }
+
+    // Disable the controls for typing and sending a new message
+    public void DisableNewMsg()
+    {
+        // Disable controls
+        _newMsgEdit.Editable = false;
+        _newMsgSend.Disabled = true;
+
+        // Release focus
+        _newMsgEdit.ReleaseFocus();
+        _newMsgSend.ReleaseFocus();
+    }
+
+The last method to write will allow us to add new chat messages to the UI. We'll need to create a
+new instance of the *info_label.tscn* scene and add it as a child in the appropriate place. Also,
+we'll want to set ``_justAddedNewMsg`` flag to true so that it will scroll to the new message.
+
+.. code-block:: csharp
+
+    // Add a ChatMsg to the message box
+    public void AddMsg(ChatEntity sender, string msg)
+    {
+        // Add the new message to the box
+        Label newMsgLabel = _infoLabelScene.Instantiate<Label>();
+        newMsgLabel.Text = sender.ChatName + ": " + msg;
+        _msgBox.AddChild(newMsgLabel);
+
+        // Make sure we will scroll to the new message
+        _justAddedNewMsg = true;
+    }
+
+Part 3: The Main Scene
+----------------------
+
+Now we will create the main scene that will bring the level and the UI together.
+
+Setting Up the Scene
+^^^^^^^^^^^^^^^^^^^^
+
+Create a new scene and add an ``HSplitContainer`` as the root node. Rename the node to "Main" and
+save the scene. Using an ``HSplitContainer`` allows us to resize the width of the user interface.
+Set the following property:
+
+* Control > Layout > Anhors Preset = "Full Rect"
+
+Add a ``SubViewportContainer`` as a child of the ``Main`` node. Then add a ``SubViewport`` as a child
+of the ``SubViewportContainer``. Set the following properties for the ``SubViewportContainer``:
+
+* SubViewportContainer > Stretch = On (checked)
+* Control > Layout > Container Sizing > Horizontal = Expand (checked)
+
+Add a ``MarginContainer`` as a child of the ``Main`` node (below the ``SubViewportContainer``). This is
+used to add a margin around the user interface so that it has some separation from the edge of the
+window. Set the following properties:
+
+* Control > Theme Overrides > Constants > Margin Top = 12
+* Control > Theme Overrides > Constants > Margin Right = 12
+* Control > Theme Overrides > Constants > Margin Bottom = 12
+
+Finally, we can add the level and UI scenes. Instantiate ``level.tscn`` as a child of the
+``SubViewport``, and instantiate ``user_interface.tscn`` as a child of the ``MarginContainer``.
+
+Writing the Script
+^^^^^^^^^^^^^^^^^^
+
+If you remember, our UI script has a property that is meant to point to the ChatPlayer node. Rather
+than having the UI script set that property itself, we'll have our ``Main`` node do so by dependency
+injection.
+
+Add a C# script to the ``Main`` node. Save the script as "Main.cs". In this script, we'll just need to
+override the ``_Ready()`` method with the following code. This code searches in the ``SubViewport``
+for a ``ChatPlayer`` node called "ChatPlayer". It then gets the UI node and sets the ``MyChatPlayer`` property of
+the UI to point to the ``ChatPlayer`` node that was found.
+
+.. code-block:: csharp
+
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
+    {
+        // Connect the UI up to the first ChatPlayer found
+        ChatPlayer chatPlayer = GetNode("SubViewportContainer/SubViewport").FindChild("ChatPlayer") as ChatPlayer;
+        UserInterface userInterface = GetNode<UserInterface>("MarginContainer/UserInterface");
+        userInterface.MyChatPlayer = chatPlayer;
+    }

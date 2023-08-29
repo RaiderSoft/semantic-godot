@@ -1,0 +1,6 @@
+The Treasure Chest
+==================
+
+In this section, we will add one final touch to make the game complete. There is a treasure chest
+in the top right corner of the map. We will add a ChatAI node over the top of it. When the player
+talks to this treasure chest, it will tell them that they have won the game!

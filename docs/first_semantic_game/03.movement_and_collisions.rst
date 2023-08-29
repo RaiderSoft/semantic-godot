@@ -1,0 +1,6 @@
+Movement and Collisions
+=======================
+
+In this section, we will set up an NPC scene, a player scene, and a map scene. We will add
+collisions to all of them and will write a script for the player to allow it to move based on
+keyboard input. Finally, we'll bring all these parts together into a level scene.
