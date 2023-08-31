@@ -90,21 +90,26 @@ player. So everywhere we have ``GD.Print()`` statements, we'll instead use ``Emi
 Control Hints
 ^^^^^^^^^^^^^
 
-**[EXPAND]** The ``_controlHint`` property:
+Next, we can add in the ``_controlHint`` property. The ``ChatPlayer`` node will use this to keep
+track of the current text that should be displayed to the player as a hint about what controls can
+be used at the moment.
 
 .. code-block:: csharp
 
     // The current control hint
     private string _controlHint;
 
-**[EXPAND]** The ``_Process()`` method used to keep it updated:
+Finally, we'll set the ``_Process()`` method to update the ``_controlHint`` property every tick. If
+the _controlHint does end up being changed on a certain tick, then we'll emit the
+``ControlHintUpdated`` signal for the UI to pick up. (We declared this signal above when we
+declared all the other signals.)
 
 .. code-block:: csharp
 
     // Called every tick
     public override void _Process(double delta)
     {
-        // Update the control hint
+        // Get the current control hint
         string newControlHint = "Use the arrow keys to move";
         if (InConvo())
         {
@@ -116,6 +121,7 @@ Control Hints
             if (nearestChatEntity != null)
                 newControlHint = "Press SHIFT to talk with " + nearestChatEntity.ChatName;
         }
+        // If the control hint has changed, update it and emit a signal
         if (newControlHint != _controlHint)
         {
             _controlHint = newControlHint;
@@ -125,6 +131,9 @@ Control Hints
 
 Part 2: The User Interface Scene
 --------------------------------
+
+Now that we have updated the ``ChatPlayer`` script, we can move on to creating the UI and
+connecting it up to this script. First, we'll start with the UI scene itself.
 
 Setting Up the Scene
 ^^^^^^^^^^^^^^^^^^^^
