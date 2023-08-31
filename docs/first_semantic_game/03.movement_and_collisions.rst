@@ -1,6 +1,138 @@
 Movement and Collisions
 =======================
 
-In this section, we will set up an NPC scene, a player scene, and a map scene. We will add
-collisions to all of them and will write a script for the player to allow it to move based on
-keyboard input. Finally, we'll bring all these parts together into a level scene.
+In the last section, we saw how to create a simple scene that allowed us to connect Godot up to
+Sematic-Kernel and converse with a GPT-4 powered NPC. Now, our goal is to take this one step
+further by embedding that NPC in a slightly more developed game world, one with movement and
+collisions.
+
+We'll create the world shown at the beginning, where there is a river troll blocking a bridge that
+the player needs to get across. To keep our project organized, we'll split up this world into three
+separate scenes: one for the troll, one for the player, and one for the map. After they are all
+created, we'll bring these three scenes together in a "Level" scene.
+
+Part 1: The Troll Scene
+-----------------------
+
+For the river troll, who is named "Gralk the Wise", we will create a fairly standard NPC scene
+using a ``CharacterBody2D`` node as the root with a collision shape and a sprite as children. We'll
+also add a simple script which will provide the ability to move Gralk off of the bridge when
+appropriate.
+
+Setting Up the Scene
+^^^^^^^^^^^^^^^^^^^^
+
+To start, create a new scene and add a ``CharacterBody2D`` node as the root. Rename this node to
+"Gralk" and save the scene as "gralk.tscn". In the inspector, set the following property:
+
+* CharacterBody2D > Motion Mode = "Floating"
+
+Next, add a ``CollisionShape2D`` node as a child of the ``Gralk`` node. Set the following property:
+
+* CollisionShape2D > Shape = "New RectangleShape2D"
+
+Then, set the following properties for the ``RectangleShape2D``:
+
+* RectangleShape2D > Size > x = 64 px
+* RectangleShape2D > Size > y = 64 px
+
+Finally, add a ``Sprite2D`` node as a child of the ``Gralk`` node. The picture of Gralk is provided
+in the file *gralk.jpeg*. Add it to the sprite by dragging the file onto the ``Texture`` property
+in the inspector. (Alternately, you can click on the ``Texture`` property and select "Load" from
+the drop-down menu. Then find and open *gralk.jpeg*.)
+
+You might notice the image of the troll is too big for the collision shape we made just before. To
+fix this, set the following properties on the ``Sprite2D`` node:
+
+* Node2D > Transform > Scale > x = 0.063
+* Node2D > Transform > Scale > y = 0.063
+
+Writing the Script
+^^^^^^^^^^^^^^^^^^
+
+Eventually, we are going to want Gralk to move out of the way after the player has answered his
+riddle correctly. At this point, we won't be able to tell automatically when the riddle has been
+answered, so instead we'll trigger the movement with keyboard input, just so we can be sure the
+movement and collisions are all working correctly.
+
+First, attach a new script to the ``Gralk`` node. Make sure it is a C# script and that it inherits
+from ``CharacterBody2D``. Then save it as "Gralk.cs".
+
+With the script open, we'll add the property ``_allowToPassPosition``, which will hold the position
+that we want to move Gralk to in order to allow the player to pass. In the ``_Ready()`` method,
+we'll set this position to be 256 pixels left of Gralk's starting position (so that Gralk will move
+left off the end of the bridge).
+
+.. code-block:: csharp
+
+	// Where Gralk should move to allow player to pass
+	private Vector2 _allowToPassPosition;
+
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		// Designate where Gralk should move to allow player to pass
+		_allowToPassPosition = Position;
+		_allowToPassPosition.X -= 256;
+	}
+
+Next, we can add a method to call when we want to move Gralk out of the way. This script works by
+using a `tween <https://docs.godotengine.org/en/stable/classes/class_tween.html>`_ object that will
+update the position of the node every tick until it reaches a designated end position after a
+designated amount of time.
+
+.. code-block:: csharp
+
+	// Moves Gralk to allow the player to pass
+	public void AllowToPass()
+	{
+		Tween moveTween = CreateTween();
+		moveTween.TweenProperty(this, "position", _allowToPassPosition, 2);
+	}
+
+Finally, we'll add the temporary script that will allow us to trigger this movement by pressing the
+``ALT`` key. First, set up a new action in the project's input map. (You can access the input map
+by opening the project settings and clicking on the "Input Map" tab.) Add a new action called
+"allow_to_pass". Then add the ``ALT`` key as an input event for allow_to_pass. Once that's done, go
+back to the *Gralk.cs* script and add the following in the ``_Input()`` method.
+
+.. code-block:: csharp
+
+	// (Temporary) Listen for input to move Gralk out of the way
+	public override void _Input(InputEvent @event)
+	{
+		if (@event.IsActionPressed("allow_to_pass"))
+		{
+			AllowToPass();
+		}
+	}
+
+Part 2: The Player Scene
+------------------------
+
+TODO
+
+Setting Up the Scene
+^^^^^^^^^^^^^^^^^^^^
+
+TODO
+
+Writing the Script
+^^^^^^^^^^^^^^^^^^
+
+TODO
+
+Part 3: The Map and Level Scenes
+--------------------------------
+
+TODO
+
+The Map
+^^^^^^^
+
+TODO
+
+The Level
+^^^^^^^^^
+
+TODO

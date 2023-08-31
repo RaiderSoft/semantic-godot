@@ -17,7 +17,7 @@ After completing the pre-requisite Dodge the Creeps tutorial, come back here.
 
 In this tutorial, you will learn to quickly and easily generate GPT-4 powered
 NPCs in Godot using C# and Microsoft Semantic-Kernel.  The goal is to create
-NPCs in Godot that are capable of engaging and creative conversationw ith players.
+NPCs in Godot that are capable of engaging in creative conversation with players.
 By the end, you will have a simple game that demonstrates how AI NPCs can be
 added to a Godot game.
 
