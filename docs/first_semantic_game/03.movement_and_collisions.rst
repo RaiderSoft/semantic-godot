@@ -33,8 +33,8 @@ Next, add a ``CollisionShape2D`` node as a child of the ``Gralk`` node. Set the 
 
 Then, set the following properties for the ``RectangleShape2D``:
 
-* RectangleShape2D > Size > x = 64 px
-* RectangleShape2D > Size > y = 64 px
+* RectangleShape2D > Size > x = 100 px
+* RectangleShape2D > Size > y = 100 px
 
 Finally, add a ``Sprite2D`` node as a child of the ``Gralk`` node. The picture of Gralk is provided
 in the file *gralk.jpeg*. Add it to the sprite by dragging the file onto the ``Texture`` property
@@ -44,8 +44,8 @@ the drop-down menu. Then find and open *gralk.jpeg*.)
 You might notice the image of the troll is too big for the collision shape we made before. To fix
 this, set the following properties on the ``Sprite2D`` node:
 
-* Node2D > Transform > Scale > x = 0.063
-* Node2D > Transform > Scale > y = 0.063
+* Node2D > Transform > Scale > x = 0.098
+* Node2D > Transform > Scale > y = 0.098
 
 Writing the Script
 ^^^^^^^^^^^^^^^^^^
@@ -74,7 +74,7 @@ left off the end of the bridge).
     {
         // Designate where Gralk should move to allow player to pass
         _allowToPassPosition = Position;
-        _allowToPassPosition.X -= 256;
+        _allowToPassPosition.X -= 300;
     }
 
 Next, we can add a method to call when we want to move Gralk out of the way. This script works by
@@ -131,8 +131,8 @@ property:
 
 Then, set the following properties for the ``RectangleShape2D``:
 
-* RectangleShape2D > Size > x = 64 px
-* RectangleShape2D > Size > y = 64 px
+* RectangleShape2D > Size > x = 100 px
+* RectangleShape2D > Size > y = 100 px
 
 Finally, add a ``Sprite2D`` node as a child of the ``Seraphis`` node. The picture of Seraphis is
 provided in the file *seraphis.png*. Add it to the sprite by dragging the file onto the ``Texture``
@@ -142,8 +142,8 @@ from the drop-down menu. Then find and open *seraphis.png*.)
 You might notice the image of Seraphis is too big for the collision shape we made just before. To fix
 this, set the following properties on the ``Sprite2D`` node:
 
-* Node2D > Transform > Scale > x = 0.091
-* Node2D > Transform > Scale > y = 0.091
+* Node2D > Transform > Scale > x = 0.141
+* Node2D > Transform > Scale > y = 0.141
 
 Writing the Script
 ^^^^^^^^^^^^^^^^^^
@@ -165,7 +165,7 @@ easily edit Seraphis's speed later on if we desire.
 
     // How fast the player will move (pixels/sec)
     [Export]
-    public int Speed = 256;
+    public int Speed = 300;
 
 Next, we'll want to add code to the ``_PhysicsProcess()`` method that will move Seraphis based on
 player input. First, we'll use the method ``Input.GetVector()`` to get a 2D vector based on what
@@ -201,7 +201,11 @@ TODO
 The Map
 ^^^^^^^
 
-TODO
+The map scene is provided in a file called *map.tscn*. Everything should be set up except the
+background picture, which is provided in the file *forest_bridge.jpg*. To add the picture, open
+*map.tscn* and select the ``Sprite2D`` node. In the inspector, set the ``Texture`` property by
+dragging *forest_bridge.jpg* onto it. (Alternately, you can click on the ``Texture`` property and
+select "Load" from the drop-down menu. Then find and open *forest_bridge.jpg*.)
 
 The Level
 ^^^^^^^^^

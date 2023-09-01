@@ -31,7 +31,7 @@ Adding to Gralk Scene
 
 * Add ``ChatAI`` to the Gralk scene.
 * Set ``ChatName`` and ``ChatDescr`` properties. (Need some explanation for the format of the ``ChatDescr`` property.)
-* Add a ``CollisionShape2D`` as a child of the ``ChatAI`` node. Give the ``CollisionShape2D`` a suitable shape (such as a circle with a radius of 64 px).
+* Add a ``CollisionShape2D`` as a child of the ``ChatAI`` node. Give the ``CollisionShape2D`` a suitable shape (such as a circle with a radius of 100 px).
 
 Part 2: ChatPlayer
 ------------------
@@ -60,7 +60,7 @@ Adding to Seraphis Scene
 
 * Add ``ChatAI`` to the Gralk scene.
 * Set ``ChatName`` and (optionally) ``ChatDescr`` properties.
-* Add a ``CollisionShape2D`` as a child of the ``ChatAI`` node. Give the ``CollisionShape2D`` a suitable shape (such as a circle with a radius of 64 px).
+* Add a ``CollisionShape2D`` as a child of the ``ChatAI`` node. Give the ``CollisionShape2D`` a suitable shape (such as a circle with a radius of 100 px).
 
 Part 3: Try it Out
 ------------------
