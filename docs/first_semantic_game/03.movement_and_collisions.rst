@@ -41,8 +41,8 @@ in the file *gralk.jpeg*. Add it to the sprite by dragging the file onto the ``T
 in the inspector. (Alternately, you can click on the ``Texture`` property and select "Load" from
 the drop-down menu. Then find and open *gralk.jpeg*.)
 
-You might notice the image of the troll is too big for the collision shape we made just before. To
-fix this, set the following properties on the ``Sprite2D`` node:
+You might notice the image of the troll is too big for the collision shape we made before. To fix
+this, set the following properties on the ``Sprite2D`` node:
 
 * Node2D > Transform > Scale > x = 0.063
 * Node2D > Transform > Scale > y = 0.063
@@ -55,8 +55,9 @@ riddle correctly. At this point, we won't be able to tell automatically when the
 answered, so instead we'll trigger the movement with keyboard input, just so we can be sure the
 movement and collisions are all working correctly.
 
-First, attach a new script to the ``Gralk`` node. Make sure it is a C# script and that it inherits
-from ``CharacterBody2D``. Then save it as "Gralk.cs".
+First, attach a new script to the ``Gralk`` node. Make sure it is a C# script, that it inherits
+from ``CharacterBody2D``, and that it is using the "Node: Default" template. Then save it as
+"Gralk.cs".
 
 With the script open, we'll add the property ``_allowToPassPosition``, which will hold the position
 that we want to move Gralk to in order to allow the player to pass. In the ``_Ready()`` method,
@@ -65,16 +66,16 @@ left off the end of the bridge).
 
 .. code-block:: csharp
 
-	// Where Gralk should move to allow player to pass
-	private Vector2 _allowToPassPosition;
+    // Where Gralk should move to allow player to pass
+    private Vector2 _allowToPassPosition;
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-		// Designate where Gralk should move to allow player to pass
-		_allowToPassPosition = Position;
-		_allowToPassPosition.X -= 256;
-	}
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
+    {
+        // Designate where Gralk should move to allow player to pass
+        _allowToPassPosition = Position;
+        _allowToPassPosition.X -= 256;
+    }
 
 Next, we can add a method to call when we want to move Gralk out of the way. This script works by
 using a `tween <https://docs.godotengine.org/en/stable/classes/class_tween.html>`_ object that will
@@ -83,12 +84,12 @@ designated amount of time.
 
 .. code-block:: csharp
 
-	// Moves Gralk to allow the player to pass
-	public void AllowToPass()
-	{
-		Tween moveTween = CreateTween();
-		moveTween.TweenProperty(this, "position", _allowToPassPosition, 2);
-	}
+    // Moves Gralk to allow the player to pass
+    public void AllowToPass()
+    {
+        Tween moveTween = CreateTween();
+        moveTween.TweenProperty(this, "position", _allowToPassPosition, 2);
+    }
 
 Finally, we'll add the temporary script that will allow us to trigger this movement by pressing the
 ``ALT`` key. First, set up a new action in the project's input map. (You can access the input map
@@ -98,29 +99,99 @@ back to the *Gralk.cs* script and add the following in the ``_Input()`` method.
 
 .. code-block:: csharp
 
-	// (Temporary) Listen for input to move Gralk out of the way
-	public override void _Input(InputEvent @event)
-	{
-		if (@event.IsActionPressed("allow_to_pass"))
-		{
-			AllowToPass();
-		}
-	}
+    // (Temporary) Listen for input to move Gralk out of the way
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed("allow_to_pass"))
+        {
+            AllowToPass();
+        }
+    }
 
 Part 2: The Player Scene
 ------------------------
 
-TODO
+The scene for the player character, whose name is Seraphis, will be set up in the same way as
+Gralk's scene. We'll have a ``CharacterBody2D`` as the root and a collision shape and a sprite as
+children. The script, however, will be different since we'll want Seraphis to be able to move based
+on player input.
 
 Setting Up the Scene
 ^^^^^^^^^^^^^^^^^^^^
 
-TODO
+To start, create a new scene and add a ``CharacterBody2D`` node as the root. Rename this node to
+"Seraphis" and save the scene as "seraphis.tscn". In the inspector, set the following property:
+
+* CharacterBody2D > Motion Mode = "Floating"
+
+Next, add a ``CollisionShape2D`` node as a child of the ``Seraphis`` node. Set the following
+property:
+
+* CollisionShape2D > Shape = "New RectangleShape2D"
+
+Then, set the following properties for the ``RectangleShape2D``:
+
+* RectangleShape2D > Size > x = 64 px
+* RectangleShape2D > Size > y = 64 px
+
+Finally, add a ``Sprite2D`` node as a child of the ``Seraphis`` node. The picture of Seraphis is
+provided in the file *seraphis.png*. Add it to the sprite by dragging the file onto the ``Texture``
+property in the inspector. (Alternately, you can click on the ``Texture`` property and select "Load"
+from the drop-down menu. Then find and open *seraphis.png*.)
+
+You might notice the image of Seraphis is too big for the collision shape we made just before. To fix
+this, set the following properties on the ``Sprite2D`` node:
+
+* Node2D > Transform > Scale > x = 0.091
+* Node2D > Transform > Scale > y = 0.091
 
 Writing the Script
 ^^^^^^^^^^^^^^^^^^
 
-TODO
+Before we write the script, we should first set up the appropriate actions in the project's input
+map. Add four new actions: "move_left", "move_right", "move_up", and "move_down". Then add the
+corresponding arrow key as an input event for each of these actions (left arrow key for move_left,
+right arrow key for move_right, etc.).
+
+With these actions set up, we can now write a script that will enable Seraphis to move based on
+player input. First, attach a new script to the ``Seraphis`` node. Make sure it is a C# script,
+that it inherits from ``CharacterBody2D``, and that it is using the "Node: Default" template. Then
+save it as "Seraphis.cs".
+
+We should first add a ``Speed`` property to this script and export it to the editor so that we can
+easily edit Seraphis's speed later on if we desire.
+
+.. code-block:: csharp
+
+    // How fast the player will move (pixels/sec)
+    [Export]
+    public int Speed = 256;
+
+Next, we'll want to add code to the ``_PhysicsProcess()`` method that will move Seraphis based on
+player input. First, we'll use the method ``Input.GetVector()`` to get a 2D vector based on what
+input directions are currently being pressed. Next, we'll make sure this vector either has a
+magnitude of zero (for no input) or has a magnitude equal to the ``Speed`` property we set earlier.
+Finally, we'll set the built-in ``Velocity`` property and call the built-in ``MoveAndSlide()`` to
+automatically handle movement and collisions for us.
+
+.. code-block:: csharp
+
+    // Called once per physics tick
+    public override void _PhysicsProcess(double delta)
+    {
+        // Get input vector
+        var velocity = Input.GetVector("move_left", "move_right", "move_up", "move_down");
+
+        // Set correct magnitude
+        if (velocity.Length() > 0)
+            velocity = velocity.Normalized() * Speed;
+
+        // Set Velocity property of this CharacterBody2D
+        Velocity = velocity;
+
+        // Call Godot's built-in function for physics-based movement
+        MoveAndSlide();
+    }
 
 Part 3: The Map and Level Scenes
 --------------------------------
