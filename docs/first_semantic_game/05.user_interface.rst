@@ -7,8 +7,8 @@ a new main scene to handle the connection between the level scene (already creat
 the end of this section, we should be able to do the following from the user interface:
 
 * See a constantly updated control hint message.
-* See when other ``ChatAgents`` are nearby.
-* Start and end a conversation with a nearby ``ChatAgent``.
+* See when other ``ChatEntity`` nodes are nearby.
+* Start and end a conversation with a nearby ``ChatEntity``.
 * Write, send, and receive messages while in a conversation.
 
 Part 1: Adjusing ChatPlayer
@@ -138,26 +138,27 @@ connecting it up to this script. First, we'll start with the UI scene itself.
 Setting Up the Scene
 ^^^^^^^^^^^^^^^^^^^^
 
-The user interface scene is provided premade in a zip file. Download the file and extract the
-contents into a folder called "user_interface". You should see the following files:
+The user interface scene is provided premade in a file called *user_interface.tscn*. Everything
+should be set up except the scripts. Open up *user_interface.tscn*. You should see a scene made up
+of various control nodes that has three main sections labeled "Control Hint", "Nearby Entities",
+and "Messages". These sections correspond to the nodes ``ControlGroup``, ``EntityGroup``, and
+``MsgGroup`` with their children.
 
-* *info_label.tscn*
-* *info_style.tres*
-* *NewMsgEdit.cs*
-* *user_interface.tscn*
-* *v_scroll_container.tscn*
+You will also need the files *dynamic_label.tscn* and *NewMsgEdit.cs*. The first is a label scene
+that will be added from script during gameplay. The second is a short script that makes it so that
+the enter key will send a message. Attach the *NewMsgEdit.cs* script now to the ``NewMsgEdit`` node
+(this node is under the ``MsgGroup`` node).
 
-Double-click on *user_interface.tscn* to open up the main scene for the user interface. You should
-see a scene made up of various control nodes that has three main sections labeled "Control Hint",
-"Nearby Entities", and "Messages". These sections correspond to the nodes ``ControlHintGroup``,
-``EntityGroup``, and ``MsgGroup`` with their children.
+Finally, if you want, you can change the project's default background color to black. This setting
+can be found in the project settings under Rendering > Environment > Defaults > Default Clear
+Color.
 
 Writing the Script
 ^^^^^^^^^^^^^^^^^^
 
 Now, we'll add the main script for interacting with the UI. It will be attached to the root node
-of the scene (``UserInterface``) and will listen for signals from the ``ChatPlayer`` node and update
-it when necessary.
+of the scene (``UserInterface``) and will listen for signals from the ``ChatPlayer`` node and
+update it when necessary.
 
 Add a C# script to the UserInterface node. Save the script as "UserInterface.cs".
 
@@ -179,20 +180,21 @@ them later in the ``_Ready()`` method.)
 .. code-block:: csharp
 
     // Various nodes that will need to be updated during gameplay
-    private Label _controlHintInfo;
+    private Label _controlInfo;
     private VBoxContainer _entityBox;
     private ScrollContainer _msgScroll;
     private VBoxContainer _msgBox;
     private TextEdit _newMsgEdit;
     private Button _newMsgSend;
 
-We'll also have a property that will reference the *info_label.tscn* scene that we made earlier.
-This will be used to add labels dynamically for nearby entities and messages.
+We'll also have a property that will reference the *dynamic_label.tscn* scene that we downloaded
+earlier. This will be used to add labels dynamically for nearby entities and messages. Set the path
+to point wherever you have this scene saved.
 
 .. code-block:: csharp
 
     // Scenes that will need to be instanced during gameplay
-    private PackedScene _infoLabelScene = GD.Load<PackedScene>("res://user_interface/info_label.tscn");
+    private PackedScene _dynamicLabelScene = GD.Load<PackedScene>("res://user_interface/info_label.tscn");
 
 The last property that we'll have is a flag to indicate whether a new message has just been added
 to the UI. This will be used to help us keep the messages' scroll container scrolled all the way to
@@ -218,12 +220,12 @@ loaded in the scene and ``MyChatPlayer`` has been set to reference it before we 
     public override void _Ready()
     {
         // Get all the various child nodes
-        _controlHintInfo = GetNodeOrNull<Label>("ControlHintGroup/InfoLabel");
-        _entityBox = GetNodeOrNull<VBoxContainer>("EntityGroup/VScrollContainer/VBoxContainer");
-        _msgScroll = GetNodeOrNull<ScrollContainer>("MsgGroup/VScrollContainer");
-        _msgBox = GetNodeOrNull<VBoxContainer>("MsgGroup/VScrollContainer/VBoxContainer");
-        _newMsgEdit = GetNodeOrNull<TextEdit>("MsgGroup/HBoxContainer/TextEdit");
-        _newMsgSend = GetNodeOrNull<Button>("MsgGroup/HBoxContainer/Button");
+        _controlInfo = GetNodeOrNull<Label>("ControlGroup/ControlInfo");
+        _entityBox = GetNodeOrNull<VBoxContainer>("EntityGroup/EntityScroll/EntityBox");
+        _msgScroll = GetNodeOrNull<ScrollContainer>("MsgGroup/MsgScroll");
+        _msgBox = GetNodeOrNull<VBoxContainer>("MsgGroup/MsgScroll/MsgBox");
+        _newMsgEdit = GetNodeOrNull<TextEdit>("MsgGroup/NewMsgBox/NewMsgEdit");
+        _newMsgSend = GetNodeOrNull<Button>("MsgGroup/NewMsgBox/NewMsgSend");
 
         // Connect to the send message button (and propogate the signal)
         if (_newMsgSend != null)
@@ -267,13 +269,13 @@ Next, write a method that handles setting the text of the "Control Hint" section
     // Set the text of the control hint label
     public void SetControlHint(string controlHint)
     {
-        _controlHintInfo.Text = controlHint;
+        _controlInfo.Text = controlHint;
     }
 
 Also, write the following methods for adding or removing an entity from the "Nearby Entities"
-section. When adding an entity, we'll need to create a new instance of *info_label.tscn* and add it
-as a child in the appropriate place. When removing, we'll need to search through all the ``Labels``
-and find the one that matches the entity we are trying to remove.
+section. When adding an entity, we'll need to create a new instance of *dynamic_label.tscn* and add
+it as a child in the appropriate place. When removing, we'll need to search through all the
+labels and find the one that matches the entity we are trying to remove.
 
 .. code-block:: csharp
 
@@ -281,7 +283,7 @@ and find the one that matches the entity we are trying to remove.
     public void AddEntity(ChatEntity newEntity)
     {
         // Add the new entity to the box
-        Label newEntityLabel = _infoLabelScene.Instantiate<Label>();
+        Label newEntityLabel = _dynamicLabelScene.Instantiate<Label>();
         newEntityLabel.Text = newEntity.ChatName;
         _entityBox.AddChild(newEntityLabel);
     }
@@ -304,7 +306,7 @@ and find the one that matches the entity we are trying to remove.
     }
 
 The next method will determine what happens when the send button is pressed (or when the enter key
-is pressed). We just need to call the SendMsg function of the ``ChatPlayer`` node.
+is pressed). We just need to call the ``SendMsg()`` method of the ``ChatPlayer`` node.
 
 .. code-block:: csharp
 
@@ -344,8 +346,9 @@ They will be enabled when the player is in a conversation and disabled when they
     }
 
 The last method to write will allow us to add new chat messages to the UI. We'll need to create a
-new instance of the *info_label.tscn* scene and add it as a child in the appropriate place. Also,
-we'll want to set ``_justAddedNewMsg`` flag to true so that it will scroll to the new message.
+new instance of the *dynamic_label.tscn* scene and add it as a child in the appropriate place.
+Also, we'll want to set ``_justAddedNewMsg`` flag to true so that it will scroll to the new
+message.
 
 .. code-block:: csharp
 
@@ -353,7 +356,7 @@ we'll want to set ``_justAddedNewMsg`` flag to true so that it will scroll to th
     public void AddMsg(ChatEntity sender, string msg)
     {
         // Add the new message to the box
-        Label newMsgLabel = _infoLabelScene.Instantiate<Label>();
+        Label newMsgLabel = _dynamicLabelScene.Instantiate<Label>();
         newMsgLabel.Text = sender.ChatName + ": " + msg;
         _msgBox.AddChild(newMsgLabel);
 

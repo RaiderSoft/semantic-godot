@@ -201,8 +201,8 @@ TODO
 The Map
 ^^^^^^^
 
-The map scene is provided in a file called *map.tscn*. Everything should be set up except the
-background picture, which is provided in the file *forest_bridge.jpg*. To add the picture, open
+The map scene is provided premade in a file called *map.tscn*. Everything should be set up except
+the background picture, which is provided in the file *forest_bridge.jpg*. To add the picture, open
 *map.tscn* and select the ``Sprite2D`` node. In the inspector, set the ``Texture`` property by
 dragging *forest_bridge.jpg* onto it. (Alternately, you can click on the ``Texture`` property and
 select "Load" from the drop-down menu. Then find and open *forest_bridge.jpg*.)
