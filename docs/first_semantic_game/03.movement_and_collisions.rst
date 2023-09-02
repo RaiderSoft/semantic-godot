@@ -6,17 +6,19 @@ Sematic-Kernel and converse with a GPT-4 powered NPC. Now, our goal is to take t
 further by embedding that NPC in a slightly more developed game world, one with movement and
 collisions.
 
-We'll create the world shown at the beginning, where there is a river troll blocking a bridge that
-the player needs to get across. To keep our project organized, we'll split up this world into three
-separate scenes: one for the troll, one for the player, and one for the map. After they are all
-created, we'll bring these three scenes together in a "Level" scene.
+In this section, we'll just set up the world with it's movements and collisions, leaving the task
+of integrating the GPT-4 powered NPC until a later section. We'll set up the world shown at the
+beginning, where there is a river troll blocking a bridge that the player needs to get across. To
+keep our project organized, we'll split up this world into three separate scenes: one for the
+troll, one for the player character, and one for the map. After they are all created, we'll bring
+these three scenes together into a level scene.
 
 Part 1: The Troll Scene
 -----------------------
 
-For the river troll, who is named "Gralk the Wise", we will create a fairly standard NPC scene
-using a ``CharacterBody2D`` node as the root with a collision shape and a sprite as children. We'll
-also add a simple script which will provide the ability to move Gralk off of the bridge when
+For the river troll, who is named Gralk the Wise, we will create a fairly standard NPC scene using
+a ``CharacterBody2D`` node as the root with a collision shape and a sprite as children. We'll also
+add a simple script which will provide the ability to move Gralk off of the bridge when
 appropriate.
 
 Setting Up the Scene
@@ -196,7 +198,9 @@ automatically handle movement and collisions for us.
 Part 3: The Map and Level Scenes
 --------------------------------
 
-TODO
+With the two characters set up in their individual scenes, now we'll work on bringing them together
+into a single scene. First we'll set up the map that they'll move around in. Then we'll combine all
+of these elements in a level.
 
 The Map
 ^^^^^^^
@@ -210,4 +214,33 @@ select "Load" from the drop-down menu. Then find and open *forest_bridge.jpg*.)
 The Level
 ^^^^^^^^^
 
-TODO
+Now we'll set up the level scene. To start, create a new scene and add a ``Node2D`` node as the
+root. Rename this node to "Level" and save the scene as "level.tscn". Add an instance of the
+*map.tscn* scene as a child of the ``Level`` node.
+
+Next, add an instance of the *gralk.tscn* scene as a child of the ``Level`` node. (Make sure it is
+below the map in the scene tree so that it is drawn on top of the map.) Move Gralk so that he is
+located on the left end of the bridge. A position of (-80 px, 578 px) should work well for this.
+
+Now, add an instance of the *seraphis.tscn* scene as a child of the ``Level`` node. (Again, make
+sure it is below the map in the scene tree.) Move Seraphis so that he is located somewhere on the
+left side of the river. A position of (-660 px, 278 px) should work well for this.
+
+Finally, we'd like the camera to follow Seraphis around as the player moves him using the arrow
+keys. To achieve this, add a ``Camera2D`` node as a child of Seraphis. Set the following
+properties:
+
+* Camera2D > Zoom > x = 0.75
+* Camera2D > Zoom > y = 0.75
+* Camera2D > Limit > Left = -2400 px
+* Camera2D > Limit > Top = -1350 px
+* Camera2D > Limit > Right = 2400 px
+* Camera2D > Limit > Bottom = 1350 px
+
+Try It Out
+^^^^^^^^^^
+
+This scene should now be ready to run! Press ``F6`` (or the "Run Current Scene" button). Confirm
+that you can move Seraphis around using the arrow keys and that he collides with Gralk and the
+various environmental obstacles. Try pressing ``ALT`` and make sure Gralk moves out of the way, off
+the left end of the bridge as intended.

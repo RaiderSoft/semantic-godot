@@ -1,11 +1,12 @@
 Creating ChatEntity
 ===================
 
-In this section, we will define the ``ChatEntity`` node type that will allow us to integrate moving
-characters with Semantic-Kernel. This script will have some basic properties, like a name and
-description, and will handle some basic behaviors, like keeping track of other nearby entities. In
-the next section, we will extend this node type with two new types: ``ChatAI`` for NPCs and
-``ChatPlayer`` for player characters.
+In this section, we will start the process of integrating a GPT-4 powered NPC with the game world
+we just created. To do this, we'll begin by defining the ``ChatEntity`` node type which will have
+some basic properties, like a name and description, and will handle some basic behaviors, like
+keeping track of other nearby entities. In the next section, we will extend this node type with two
+new types: ``ChatAI``, which is the node we will use for GPT-4 powered NPCs, and ``ChatPlayer``,
+the node we'll use for player characters.
 
 Part 1: Basic Setup
 -------------------
