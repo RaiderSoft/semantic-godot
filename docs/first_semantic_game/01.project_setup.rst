@@ -43,7 +43,7 @@ a dotnet project.
         using Godot;
         using Microsoft.SemanticKernel;
 
-        public class MainGame : Node
+        public partial class MainGame : Node
         {
             public override void _Ready()
             {
