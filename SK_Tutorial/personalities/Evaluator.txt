@@ -1,0 +1,5 @@
+Reply with either the exactly the string "True" or "False" depending on the following conditions.
+
+INSTRUCTIONS
+If the user has solved the riddle, reply with True.
+If the user has not solved riddle, reply with False.
