@@ -1,0 +1,163 @@
+Simple Chat NPCs
+================
+    
+This tutorials aims to guide you through the process of creating semantic non-player characters (NPCs) that can hold interactive conversations in your Godot engine game.
+
+Creating a Basic NPC
+-----------------------
+
+With the Semantic Kernel set up and Godot Project running, the next step is to create a basic NPC for the player to interact with. Here we will use simple shapes for NPCs instead of more lifelike characters.
+
+Step 1: Creating the NPC Sprite
+**********************************
+
+- Switch to the 2D workspace in Godot.
+- In the Scene tab, click the "+" symbol to add a 'Node'. In the "Create New Node" window, Double click on `Area2D` to add it to the scene. This will serve as the basis of your NPC.
+- Rename the `Area2D` node to 'NPC' or any name you prefer.
+- With the 'NPC' node selected, add another new node under it. This time, choose a `CollisionShape2D`. This is important as it dictates the clickable interactable area for your NPC.
+- To create a visible entity for the NPC, create another child node under the `CollisionShape2D` called `Sprite`. Here you can upload or select any simple 2D shape image you have available.
+
+Step 2: Setting up the NPC Node Architecture
+*************************************************
+
+Right click on the 'NPC' node and select "Attach Script". Pick an intuitive name for the script and hit "Create".
+
+Player Character Creation and Movement
+----------------------------------------
+
+TODO
+
+.. code-block:: csharp
+
+   public partial class Player : CharacterBody2D
+   {
+       ...
+
+       // Called when the node enters the scene tree for the first time.
+       public override void _Ready()
+       {
+           ...
+       }
+
+       // Called once per physics tick
+       public override void _PhysicsProcess(double delta)
+       {
+           ...
+       }
+   }
+
+
+Our first ChatAI class
+----------------------
+
+The `ChatAI` class to be used in the demo is responsible for setting up and
+managing the conversations between NPCs, it uses OpenAI's GPT model via Semantic
+Kernel to handle the interactions. 
+
+In this class, the following methods are used:
+
+- `GetApiKey` for retrieving the OpenAI API key from .NET secrets storage
+- A method to initialize GPT model via Semantic Kernel
+- A method to receive message and respond asynchronously
+
+This is what the base `ChatAI` class should look like:
+
+.. code-block:: csharp
+
+    using Godot;
+    using Microsoft.SemanticKernel;
+    using Microsoft.SemanticKernel.AI.ChatCompletion;
+    using Microsoft.Extensions.Configuration;
+    using System.Threading.Tasks;
+    
+    public class ChatAI : Node
+    {
+        // Your OpenAI GPT instance
+        IChatCompletion _chatGPT;
+        
+        // Retrieve API key from .NET secrets, throw an Exception if not found
+        private string GetApiKey()
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddUserSecrets<ChatAI>()
+                .Build();
+    
+            var apiKeyVarName = "OPENAI_API_KEY";
+            var apiKey = configuration[apiKeyVarName];
+    
+            if (apiKey == null)
+            {
+                throw new Exception($"Please set the {apiKeyVarName} user secret.");
+            }
+    
+            return apiKey;
+        }
+    
+        public override void _Ready()
+        {
+            var apiKey = GetApiKey();
+            _chatGPT = InitializeGptModel(apiKey);
+        }
+    
+        // Implement your Semantic Kernel initialization here
+        private IChatCompletion InitializeGptModel(string apiKey)
+        {
+            var _kernel = new KernelBuilder()
+                            .WithOpenAIChatCompletionService("gpt-4", apiKey, "")
+                            .Build();
+            _chatGPT = _kernel.GetService<IChatCompletion>();
+            return _chatGPT;
+        }
+    
+        // Method to receive a message from another character
+        public void ReceiveMsg(string msg)
+        {
+            Task.Run(() => ReplyAsync(msg));
+        }
+    
+        // Method to read, process, and respond to messages asynchronously
+        private async Task ReplyAsync(string msg)
+        {
+            var chatHistory = _chatGPT.CreateNewChat();
+            chatHistory.AddUserMessage(msg);
+            var generatedMessage = await _chatGPT.GenerateMessageAsync(chatHistory);
+            EmitSignal(nameof(ReplyGenerated), generatedMessage);      
+        }
+    }
+
+Testing the Minimal `ChatAI` Class
+----------------------------------
+
+To verify the `ChatAI` minimal class, setup an interaction between two NPCs and allow them to communicate via `ReceiveMsg(msg)` method. Connect a handler function to the `ReplyGenerated` signal in order to observe the generated response, thus demonstrating an interactive conversation powered by Semantic Kernel.
+
+
+
+Conversing with the NPC
+-------------------------
+
+Include a trigger that starts a conversation when the player interacts with the NPC. Here's a simplified UI demonstration example in C#:
+
+.. code-block:: csharp
+
+   using Godot;
+   using System;
+
+   public partial class MinimalUserInterface : Control
+   {
+       ...
+       // Signal handler for when the submit button is pressed
+       public void OnSubmitPressed()
+       {
+           // Grab the user text
+           string userText = _textInput.Text;
+
+           // Clear the LineEdit
+           _textInput.Text = "";
+
+           // For testing purposes, print the input text to the console
+           GD.Print(userText);
+
+           // The actual handling of userText will handle the AI interaction and handle the response.
+       }
+   }
+
