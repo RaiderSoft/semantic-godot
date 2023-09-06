@@ -1,68 +1,8 @@
-Creating ChatEntity
-===================
+Extending ChatEntity
+====================
 
-In this section, we will start the process of integrating a GPT-4 powered NPC with the game world
-we just created. To do this, we'll begin by defining the ``ChatEntity`` node type which will have
-some basic properties, like a name and description, and will handle some basic behaviors, like
-keeping track of other nearby entities. In the next section, we will extend this node type with two
-new types: ``ChatAI``, which is the node we will use for GPT-4 powered NPCs, and ``ChatPlayer``,
-the node we'll use for player characters.
-
-Part 1: Basic Setup
--------------------
-
-We won't attach the ``ChatEntity`` script to any existing node. Instead, it will define a new node
-type that we can create instances of in our scenes. To create it, right click in the filesystem
-dock and select "Create New > Script...". Make sure the language is C# and that it inherits from
-``Area2D``. (We need the collision detection of an ``Area2D`` to allow this node to see other
-nearby nodes.) Save this script as "ChatEntity.cs" in the project's root directory. Then find it in
-the filesystem dock and open it up in your code editor.
-
-Global Class
-^^^^^^^^^^^^
-
-The first thing we need to do for this script is to register it with Godot's editor by making it a
-`global class <https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html>`_.
-This will allow us to add it to our project from the Godot editor. To achieve this, simply add the
-``[GlobalClass]`` attribute right above the class declaration.
-
-.. code-block:: csharp
-
-    [GlobalClass]
-    public partial class ChatEntity : Area2D
-    {
-        (...)
-    }
-
-Exported Properties
-^^^^^^^^^^^^^^^^^^^
-
-Next, we'll add a couple properties to our script: ``ChatName`` and ``ChatDescr``. ``ChatName`` is
-the entity's name, which will be communicated to any nearby entities. (It's prefixed with "Chat" to
-avoid confusion with a similar built-in property: ``Node.Name``.) ``ChatDescr``, similarly, will
-hold the entity's description. Both of these properties are
-`exported <https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_exports.html>`_
-so that they can be edited in the Godot inspector.
-
-.. code-block:: csharp
-
-    // The name for this ChatEntity instance (can be read by ChatEntity instances)
-    [Export]
-    public string ChatName = "";
-
-    // The description for this ChatEntity instance
-    [Export(PropertyHint.MultilineText)]
-    public string ChatDescr = "";
-
-You can test to see if the script is registered by saving the script and navigating back to the
-Godot editor. First click "Build Solution" in the top right of the editor (to the right of the
-run buttons). Then open up or create a scene and add a new node. Search for ``ChatEntity``, and you
-should be able to see it show up right underneath ``Area2D``. Add it to the scene and inspect it.
-The properties we added (``ChatName`` and ``ChatDescr``) should appear at the top of the inspector
-as editable text fields. (Be sure to delete this node when you're done.)
-
-Part 2: Nearby ChatEntities
----------------------------
+Nearby ChatEntities
+--------------------
 
 Next, we'll write some properties and methods to keep track of other nearby entities. This will be
 used by the ``ChatPlayer`` node to display a list of entities to the player and to allow them to
