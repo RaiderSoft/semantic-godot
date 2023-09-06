@@ -12,7 +12,7 @@ Here we will create a basic sprite that we can attach chat functionality to.
 
 1. In the Scene tab, insert an ``Area2D`` node and rename it to 
    ``NPC``.
-2. Add a ``CollisionShape2D`` rectangle to the NPC. Useful for 
+2. Add a ``CollisionShape2D`` rectangle to the NPC. This will be useful 
    later and removes the yellow warning in the workspace.
 3. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
    makes a visible sprite for our character.
@@ -33,32 +33,33 @@ Meet Gralk:
 The ChatEntity class
 --------------------
 
-Here we integrate GPT-4 powered NPCs into the game world 
-you've set up. The first step is to define a new node type called ``ChatEntity``. 
+Here we a define a base class for all chat-enabled entities in the game.
+
+The first step is to define a new node type called ``ChatEntity``. 
 This type encapsulates basic properties like a name and a description, and 
 handles basic behaviors such as recognizing other nearby entities. Subsequently, 
 we will extend this node type to create ``ChatAI`` for GPT-4 driven NPCs and 
 ``ChatPlayer`` for player characters.
 
-`ChatEntity` won't be attached to any existing node; it defines a new node type 
+``ChatEntity`` won't be attached to any existing node; it defines a new node type 
 that can be instantiated in our scenes. To create it, right-click in the 
 filesystem dock and navigate to "Create New > Script…". Make sure the language 
-is set to C# and it inherits from `Area2D` to benefit from collision detection. 
-Save this script as "ChatEntity.cs" in the project's root directory.
+is set to C# and it inherits from ``Area2D``.
+
+Save this script as ``ChatEntity.cs`` in the project's root directory.
 
 Global Class
 ^^^^^^^^^^^^
 
 To register the script with Godot's editor, it needs to be declared as a global 
 class. This way, it can be directly added from the Godot editor to any scene. 
-Simply append the `[GlobalClass]` attribute above the class declaration.
+Simply append the ``[GlobalClass]`` attribute above the class declaration.
 
 .. code-block:: csharp
 
    [GlobalClass]
    public partial class ChatEntity : Area2D
    {
-       //...
    }
 
 Exported Properties
@@ -83,54 +84,36 @@ Search for `ChatEntity`, and it should appear right below `Area2D`. Add it to
 the scene and inspect its properties, `ChatName` and `ChatDescr`, which should 
 be editable in the inspector.
 
-
-The `ChatEntity` class serves as the foundation for any entity in the game that 
-can engage in a chat. It has properties to store the name and description of the
-entity and two methods for sending and receiving messages. It also has an 
-optional signal `MsgSentEventHandler` which can be used for more advanced 
-interactions.
-
-First, define the ``ChatEntity`` class and add the properties for the name and
-description of the entity. The ``ChatDescr`` property is a multiline text field
-that will be used to provide a prompt for the AI to use.
-
-.. code-block:: csharp
-
-   public class ChatEntity : Area2D
-   {
-       [Export]
-       public string ChatName;
-
-       [Export(PropertyHint.MultilineText)]
-       public string ChatDescr;
-
-       // Called when the node enters the scene tree for the first time.
-       public override void _Ready()
-       {
-       }
-   }
-
 Next, add the methods for handling messages: `SendMsg` and `ReceiveMsg`.
 
+The SendMsg method is called when the entity wants to send a message to another
+entity. It prints the message to the console and then emits a `MsgSent` signal
+with the message as an argument. 
+
+``ReceiveMsg`` is called when the entity receives a message from another entity.
+We expect this method to be overridden by a child class because the behavior of
+receiving a message will be different for different types of entities.
+
 .. code-block:: csharp
 
-   [Signal]
-   public delegate void MsgSentEventHandler(string msg);
+    [Signal]
+    public delegate void MsgSentEventHandler(string msg);
 
-   public void SendMsg(string message)
-   {
-       //TODO: Logic for sending a message
-   }
+    public virtual void SendMsg(string msg)
+    {
+        GD.Print(ChatName + ": " + msg);
+        CallDeferred("emit_signal", "MsgSent", msg);
+    }
 
-   public string ReceiveMsg(string message)
-   {
-       //TODO: Logic for receiving a message and returning a response
-       
-       return "response";  
-   }
+    public virtual void ReceiveMsg(string msg)
+    {
+        // This function will be overridden later by a child class
+    }
 
-Final Version
-^^^^^^^^^^^^^
+Finally, we need to add a field to store the entity that this entity is currently
+in conversation with. This will be used later to send messages to the other entity.
+This ``_inConvoWith`` field is declared as ``internal`` so that it can be accessed
+by the main game class.
 
 Now the completed `ChatEntity` class should look like this:
 
