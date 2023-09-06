@@ -310,7 +310,7 @@ Creating the East and West Troll Nodes
    applied.
 
 Troll Personalities
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 1. **Select the `East Troll` Node**: Go to the ``East Troll`` node in the 
    scene tree.
