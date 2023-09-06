@@ -65,8 +65,8 @@ Simply append the ``[GlobalClass]`` attribute above the class declaration.
 Exported Properties
 ^^^^^^^^^^^^^^^^^^^
 
-We’ll add two properties: `ChatName` and `ChatDescr`. `ChatName` stores the 
-entity's name and will be visible to any nearby entities, while `ChatDescr` 
+We’ll add two properties: ``ChatName`` and ``ChatDescr``. ``ChatName`` stores the 
+entity's name and will be visible to any nearby entities, while ``ChatDescr`` 
 holds a description of the entity. Both properties are exported for easy 
 modification in the Godot inspector.
 
@@ -80,14 +80,14 @@ modification in the Godot inspector.
 
 After saving the script, go back to the Godot editor and click "Build Solution" 
 located at the top right. Then, create or open a scene and add a new node. 
-Search for `ChatEntity`, and it should appear right below `Area2D`. Add it to 
-the scene and inspect its properties, `ChatName` and `ChatDescr`, which should 
+Search for ``ChatEntity``, and it should appear right below ``Area2D``. Add it to 
+the scene and inspect its properties, ``ChatName`` and ``ChatDescr``, which should 
 be editable in the inspector.
 
-Next, add the methods for handling messages: `SendMsg` and `ReceiveMsg`.
+Next, add the methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
 
 The SendMsg method is called when the entity wants to send a message to another
-entity. It prints the message to the console and then emits a `MsgSent` signal
+entity. It prints the message to the console and then emits a ``MsgSent`` signal
 with the message as an argument. 
 
 ``ReceiveMsg`` is called when the entity receives a message from another entity.
@@ -115,7 +115,7 @@ in conversation with. This will be used later to send messages to the other enti
 This ``_inConvoWith`` field is declared as ``internal`` so that it can be accessed
 by the main game class.
 
-Now the completed `ChatEntity` class should look like this:
+Now the completed ``ChatEntity`` class should look like this:
 
 .. code-block:: csharp
 
@@ -147,7 +147,7 @@ Now the completed `ChatEntity` class should look like this:
 The ChatAI class
 ----------------
 
-Now we will create a new node type called `ChatAI` that extends `ChatEntity`
+Now we will create a new node type called ``ChatAI`` that extends ``ChatEntity``
 and adds the ability to use GPT-4 to generate responses to messages. This class
 will be used for NPCs that can hold interactive conversations. Think of this
 like a communicator device that gives an NPC speech.
@@ -175,7 +175,7 @@ Constructor
 ^^^^^^^^^^^
 
 The constructor fetches the OpenAI API key dynamically
-from the dotnet user-secret store via `GetApiKey()`,
+from the dotnet user-secret store via ``GetApiKey()``,
 and then initializes ChatGPT and the semantic kernel.
 
 This is where GPT-4 is chosen as the model.
@@ -197,8 +197,8 @@ This is where GPT-4 is chosen as the model.
 Ready
 ^^^^^
 
-The `_Ready()` method reads the NPC's personality template from a file,
-renders it with the `PromptTemplateEngine`, and then adds the rendered
+The ``_Ready()`` method reads the NPC's personality template from a file,
+renders it with the ``PromptTemplateEngine``, and then adds the rendered
 personality to the chat history. This is where the NPC's personality
 is chosen.
 
@@ -221,6 +221,41 @@ is chosen.
         base._Ready();
     }
 
+The content of NPC.txt is
+
+.. code-block:: text
+
+    You are playing an NPC in a dungeons and dragons simulator of Castle Ravenloft.
+    Respond only in character. Responding out-of-character ruins the immersion of
+    the game.
+
+    You will be interacting with both other NPCs and players. You will not
+    know which is which.
+
+    The players enjoy good jokes and shenanigans.  The environment is lighthearted,
+    but don't try too hard to be funny, let it come naturally. This is very much a
+    its-the-journey-not-the-destination kind of game, where the humor and mystery
+    are FAR more important than the fantasy story. The fantasy story is there to
+    provide a backbone for the party to have fun with.  Feel free to laugh,
+    poke fun, love, dislike, and generally exhibit the range of human emotions that
+    a professional actor would put on display.
+
+    This is a dialogue-based game. Answer in the form of dialogue. Keep conversation continuity.
+
+    The player you are interacting with is a stranger that you have not met before.
+    Therefore you must treat what they say with caution. They might be telling the
+    truth, they might not be.
+
+    Below is a character sheet for background. It DOES NOT indicate
+    the FORMAT of your responses, but all of your responses must be
+    consistent with the character background below.
+
+    +++++ BEGIN CHARACTER SHEET +++++
+    {{ $personality }}
+    ++++ END CHARACTER SHEET +++++
+
+
+
 Receiving Messages
 ^^^^^^^^^^^^^^^^^^
 
@@ -235,10 +270,10 @@ Receiving Messages
 	}
 
 
-`ReceiveMsgAsync` is the method that actually handles the message. It
+``ReceiveMsgAsync`` is the method that actually handles the message. It
 renders the message template with the message and the interlocutor's
 name, and then adds the rendered message to the chat history. Then it
-calls `GenerateMessageAsync` to get a response from GPT-4, and adds
+calls ``GenerateMessageAsync`` to get a response from GPT-4, and adds
 the response to the chat history.
 
 .. code-block:: csharp
@@ -268,6 +303,11 @@ the response to the chat history.
 		}
 	}
 
+The content of ``Message.txt`` is
+
+.. code-block:: text
+
+    {{ $message }}
 
 
 Two Arguing NPCs
@@ -295,24 +335,19 @@ Creating the East and West Troll Nodes
 Troll Personalities
 ^^^^^^^^^^^^^^^^^^^
 
-1. **Select the `East Troll` Node**: Go to the ``East Troll`` node in the 
-   scene tree.
-
-2. **Edit ChatDescr**: Find the ``ChatDescr`` field under ``Script Variables``
+1. **Edit East Troll ChatDescr**: Find the ``ChatDescr`` 
    in the properties panel. Here, input the description: "I engage in a 
    passionate debate with the West Troll over why my side of the river is 
    superior."
 
-3. **Select the `West Troll` Node**: Navigate to the ``West Troll`` node.
-
-4. **Edit ChatDescr**: Similar to the East Troll, enter a description that 
+2. **Edit West Troll ChatDescr**: Similar to the East Troll, enter a description that 
    states, "I argue with the East Troll about why my side of the river is 
    far better."
 
-5. **Save and Run**: Save the scene and run your game to ensure that the 
+3. **Save and Run**: Save the scene and run your game to ensure that the 
    troll NPCs are in place and ready to argue.
 
-Add the following lines to `MainGame`.
+Add the following lines to ``MainGame``.
 
 .. code-block:: csharp
 
