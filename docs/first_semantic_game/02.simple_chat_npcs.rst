@@ -10,17 +10,17 @@ The NPC Sprite
 
 Here we will create a basic sprite that we can attach chat functionality to.
 
-1. In the Scene tab, insert an ``Area2D`` node and rename it to 
-   ``NPC``.
+1. In the ``MainGame`` scene that we created in :doc:`01.project_setup`
+   insert an ``Area2D`` node and rename it to  ``NPC``.
 2. Add a ``CollisionShape2D`` rectangle to the NPC. This will be useful 
    later and removes the yellow warning in the workspace.
 3. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
    makes a visible sprite for our character.
-4. Set the image for our NPC sprite. Copy the troll portrait into 
-   the project. Locate and choose the image as an ``ImageTexture`` 
-   in the properties panel.
-5. Drag the NPC image near the scene. Build and run the project to see the river troll NPC 
-   token.
+4. To set the image for our NPC sprite, copy the troll portrait into 
+   the project. Then locate and choose the image as an ``ImageTexture`` 
+   in the properties panel for the ``Sprite2D`` node.
+5. Drag the NPC image near the center of the scene. Build and run the project to
+   see the river troll NPC token.
 
 Meet Gralk:
 
@@ -33,34 +33,16 @@ Meet Gralk:
 The ChatEntity class
 --------------------
 
-Here we a define a base class for all chat-enabled entities in the game.
-
-The first step is to define a new node type called ``ChatEntity``. 
-This type encapsulates basic properties like a name and a description, and 
-handles basic behaviors such as recognizing other nearby entities. Subsequently, 
+Here we a define a base class called ``ChatEntity`` for all chat-enabled  entities in the game. 
+This type encapsulates basic properties like a name and a description, and, later, 
+it handles behaviors such as detecting other nearby chat entities. Subsequently, 
 we will extend this node type to create ``ChatAI`` for GPT-4 driven NPCs and 
 ``ChatPlayer`` for player characters.
 
-``ChatEntity`` won't be attached to any existing node; it defines a new node type 
-that can be instantiated in our scenes. To create it, right-click in the 
-filesystem dock and navigate to "Create New > Script…". Make sure the language 
-is set to C# and it inherits from ``Area2D``.
+Right-click the filesystem dock and select "New Script...". **Make sure the language 
+is set to C#** and it inherits from ``Area2D``.
 
 Save this script as ``ChatEntity.cs`` in the project's root directory.
-
-Global Class
-^^^^^^^^^^^^
-
-To register the script with Godot's editor, it needs to be declared as a global 
-class. This way, it can be directly added from the Godot editor to any scene. 
-Simply append the ``[GlobalClass]`` attribute above the class declaration.
-
-.. code-block:: csharp
-
-   [GlobalClass]
-   public partial class ChatEntity : Area2D
-   {
-   }
 
 Exported Properties
 ^^^^^^^^^^^^^^^^^^^
@@ -70,6 +52,8 @@ entity's name and will be visible to any nearby entities, while ``ChatDescr``
 holds a description of the entity. Both properties are exported for easy 
 modification in the Godot inspector.
 
+Put the following inside the ``ChatEntity`` class.
+
 .. code-block:: csharp
 
    [Export]
@@ -78,15 +62,12 @@ modification in the Godot inspector.
    [Export(PropertyHint.MultilineText)]
    public string ChatDescr = "";
 
-After saving the script, go back to the Godot editor and click "Build Solution" 
-located at the top right. Then, create or open a scene and add a new node. 
-Search for ``ChatEntity``, and it should appear right below ``Area2D``. Add it to 
-the scene and inspect its properties, ``ChatName`` and ``ChatDescr``, which should 
-be editable in the inspector.
+After saving the script, attach it to the ``NPC`` node in the main scene.
+Inspect the properties of the NPC, you should see ``ChatName`` and ``ChatDescr``.
 
-Next, add the methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
+Next, we will add methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
 
-The SendMsg method is called when the entity wants to send a message to another
+The ``SendMsg`` method is called when the entity wants to send a message to another
 entity. It prints the message to the console and then emits a ``MsgSent`` signal
 with the message as an argument. 
 
@@ -110,8 +91,8 @@ receiving a message will be different for different types of entities.
         // This function will be overridden later by a child class
     }
 
-Finally, we need to add a field to store the entity that this entity is currently
-in conversation with. This will be used later to send messages to the other entity.
+Finally, we need to add a field to store a reference to our current conversation
+partner. This will be used later to send messages to the other entity.
 This ``_inConvoWith`` field is declared as ``internal`` so that it can be accessed
 by the main game class.
 
@@ -119,30 +100,33 @@ Now the completed ``ChatEntity`` class should look like this:
 
 .. code-block:: csharp
 
-   public partial class ChatEntity : Area2D
-   {
-       [Export]
-       public string ChatName;
+    using Godot;
+    using System;
 
-       [Export(PropertyHint.MultilineText)]
-       public string ChatDescr;
+    public partial class ChatEntity : Area2D
+    {
+        [Export]
+        public string ChatName;
 
-       internal ChatEntity _inConvoWith;
+        [Export(PropertyHint.MultilineText)]
+        public string ChatDescr;
 
-       [Signal]
-       public delegate void MsgSentEventHandler(string msg);
+        internal ChatEntity _inConvoWith;
 
-       public virtual void SendMsg(string msg)
-       {
-           GD.Print(ChatName + ": " + msg);
-           CallDeferred("emit_signal", "MsgSent", msg);
-       }
+        [Signal]
+        public delegate void MsgSentEventHandler(string msg);
 
-       public virtual void ReceiveMsg(string msg)
-       {
-           // This function will be overridden later by a child class
-       }
-   }
+        public virtual void SendMsg(string msg)
+        {
+            GD.Print(ChatName + ": " + msg);
+            CallDeferred("emit_signal", "MsgSent", msg);
+        }
+
+        public virtual void ReceiveMsg(string msg)
+        {
+            // This function will be overridden later by a child class
+        }
+    }
 
 The ChatAI class
 ----------------
