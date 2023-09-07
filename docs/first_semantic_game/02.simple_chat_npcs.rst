@@ -133,22 +133,25 @@ The ChatAI class
 
 Now we will create a new node type called ``ChatAI`` that extends ``ChatEntity``
 and adds the ability to use GPT-4 to generate responses to messages. This class
-will be used for NPCs that can hold interactive conversations. Think of this
-like a communicator device that gives an NPC speech.
+will be used for NPCs that can hold interactive conversations. 
 
-Create ``ChatAI.cs`` witht he following content.
+Create ``ChatAI.cs`` with the following content and attach it to the NPC node.
+Later in the tutorial we will instantiate two ``ChatAI`` nodes instead of attaching
+the script to the NPC node directly.
 
 .. code-block:: csharp
 
     using Godot;
+
     using System;
+    using System.Threading.Tasks;
+    using System.IO;
 
     using Microsoft.SemanticKernel;
     using Microsoft.SemanticKernel.AI.ChatCompletion;
     using Microsoft.SemanticKernel.Connectors.AI.OpenAI.ChatCompletion;
     using Microsoft.SemanticKernel.TemplateEngine.Prompt;
     using Microsoft.Extensions.Configuration;
-
 
     [GlobalClass]
     public partial class ChatAI : ChatEntity
@@ -247,7 +250,7 @@ personality to the chat history.
         base._Ready();
     }
 
-The suggested content of NPC.txt is
+The suggested content of ``personalities/NPC.txt`` is
 
 .. code-block:: text
 
@@ -285,55 +288,43 @@ The suggested content of NPC.txt is
 Receiving Messages
 ^^^^^^^^^^^^^^^^^^
 
+The ``ReceiveMsg`` method is called when the NPC receives a message from another
+entity. It starts a new Task that calls ``ReceiveMsgAsync``. This is done so that
+the main thread can continue to run while the NPC is waiting for a response from
+GPT-4.
+
 .. code-block:: csharp
 
     // Called when ChatEntity _inConvoWith emits a MsgSent signal
-    // This just 
-	public override void ReceiveMsg(string msg)
-	{
-		// Call the async method but don't wait for it
-		Task.Run(() => ReceiveMsgAsync(msg));
-	}
+    public override void ReceiveMsg(string msg)
+    {
+        // Call the async method but don't wait for it
+        Task.Run(() => ReceiveMsgAsync(msg));
+    }
 
+    public async Task ReceiveMsgAsync(string msg)
+    {
+        try
+        {
+            // Add the message to the chat history.
+            _chat.AddUserMessage(msg);
 
-``ReceiveMsgAsync`` is the method that actually handles the message. It
-renders the message template with the message and the interlocutor's
-name, and then adds the rendered message to the chat history. Then it
-calls ``GenerateMessageAsync`` to get a response from GPT-4, and adds
-the response to the chat history.
+            // This is the call to GPT-4 to get the reply.
+            ChatRequestSettings settings = new();
+            string reply = await _chatGPT.GenerateMessageAsync(_chat, settings);
 
-.. code-block:: csharp
+            // Send the reply to the other entity via the MsgSent signal
+            SendMsg(reply);
 
-	public async Task ReceiveMsgAsync(string msg)
-	{
-		try
-		{
-			var msg_template = await File.ReadAllTextAsync("personalities/Message.txt");
-			var context = _kernel.CreateNewContext();
-			context.Variables["interlocutor"] = "Generic Player Name";
-			context.Variables["message"] = msg;
-
-			string fullMsg = await _promptRenderer.RenderAsync(msg_template, context);
-			_chat.AddUserMessage(fullMsg);
-
-			ChatRequestSettings settings = new();
-			string reply = await _chatGPT.GenerateMessageAsync(_chat, settings);
-
-			SendMsg(reply);
-			_chat.AddAssistantMessage(reply);
-		}
-		catch (Exception ex)
-		{
-			string errMsg = $"Could not get reply from {ChatName}: {ex.Message}";
-			GD.PrintErr(errMsg);
-		}
-	}
-
-The content of ``Message.txt`` is
-
-.. code-block:: text
-
-    {{ $message }}
+            // Add the reply to the chat history.
+            _chat.AddAssistantMessage(reply);
+        }
+        catch (Exception ex)
+        {
+            string errMsg = $"Could not get reply from {ChatName}: {ex.Message}";
+            GD.PrintErr(errMsg);
+        }
+    }
 
 
 Two Arguing NPCs
@@ -347,16 +338,13 @@ river is better.
 Creating the East and West Troll Nodes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. **Add New Nodes**: In your ``MainGame`` scene, right-click and opt to 
-   "Create New Node". Search for the ``ChatEntity`` class that you've 
-   previously made. Create two nodes: one named ``East Troll`` and another 
-   named ``West Troll``.
+1. **Create an NPC Scene**: Drag the ``NPC`` node from the main scene into 
+   the filesystem dock to create a new scene. This will convert the node
+   in the main scene to an instance of the new scene.
+2. **Duplicate the NPC**: Create a second troll by right-clicking the 
+   ``NPC.tscn`` scene in the filesystem dock and selecting "Duplicate". 
+3. **Rename Nodes**: Name the nodes ``West Troll`` the nodes ``East Troll``. Place the tokens on the left and right sides of the scene, respectively.
 
-2. **Rename Nodes**: Confirm the nodes are appropriately named as 
-   ``East Troll`` and ``West Troll``.
-
-3. **Save the Scene**: Save your changes to ensure they are properly 
-   applied.
 
 Troll Personalities
 ^^^^^^^^^^^^^^^^^^^
@@ -373,7 +361,7 @@ Troll Personalities
 3. **Save and Run**: Save the scene and run your game to ensure that the 
    troll NPCs are in place and ready to argue.
 
-Add the following lines to ``MainGame``.
+Modify ``MainGame`` to connect the two trolls together.
 
 .. code-block:: csharp
 
@@ -401,3 +389,7 @@ Add the following lines to ``MainGame``.
            eastTroll.SendMsg($"I am the {eastTroll.ChatName}! And my side is the best side of the river!");
        }
    }
+
+
+Now run the game and watch the trolls argue!
+
