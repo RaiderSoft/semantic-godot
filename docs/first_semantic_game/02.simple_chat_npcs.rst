@@ -44,6 +44,18 @@ is set to C#** and it inherits from ``Area2D``.
 
 Save this script as ``ChatEntity.cs`` in the project's root directory.
 
+To register this script with the Godot editor, add the ``[GlobalClass]`` attribute right above the class declaration.
+
+.. code-block:: csharp
+
+    [GlobalClass]
+    public partial class ChatEntity : Area2D
+    {
+        ...
+    }
+
+For more information about Godot's global classes, see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html
+
 Exported Properties
 ^^^^^^^^^^^^^^^^^^^
 
