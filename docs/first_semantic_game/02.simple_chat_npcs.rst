@@ -108,6 +108,11 @@ partner. This will be used later to send messages to the other entity.
 This ``_inConvoWith`` field is declared as ``internal`` so that it can be accessed
 by the main game class.
 
+.. code-block:: csharp
+
+    internal ChatEntity _inConvoWith;
+
+
 Now the completed ``ChatEntity`` class should look like this:
 
 .. code-block:: csharp
