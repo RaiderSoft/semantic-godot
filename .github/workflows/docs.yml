@@ -1,8 +1,8 @@
-name: Build and deploy tutorial docs
+name: Deploy Sphinx Documentation to Pages
 
 on:
   push:
-    branches: ["4-deploy-docs-to-real-website"]
+    branches: [ '4-deploy-docs-to-real-website' ]
   workflow_dispatch:
 
 permissions:
@@ -15,10 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  prepare:
+  deploy:
     runs-on: ubuntu-latest
-    outputs:
-      build_dir: docs/_build/html
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -32,30 +30,13 @@ jobs:
       run: |
         cd docs
         pip install -r requirements.txt
-        make html
-
-  upload:
-    needs: prepare
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+        make docs
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
-
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: ${{ needs.prepare.outputs.build_dir }}
-
-  deploy:
-    needs: upload
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
+      
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v2
+      with:
+        path: docs/_build/html
