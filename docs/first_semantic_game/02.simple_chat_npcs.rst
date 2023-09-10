@@ -359,8 +359,9 @@ Creating the East and West Troll Nodes
 1. **Create an NPC Scene**: Drag the ``NPC`` node from the main scene into 
    the filesystem dock to create a new scene. This will convert the node
    in the main scene to an instance of the new scene.
-2. **Duplicate the NPC**: Create a second troll by right-clicking the 
-   ``NPC.tscn`` scene in the filesystem dock and selecting "Duplicate". 
+2. **Second NPC**: Create a second troll by dragging the 
+   ``NPC.tscn`` scene into the scene tree. This should add a
+   second instance of the ``NPC`` node to the main scene. 
 3. **Rename Nodes**: Name the nodes ``West Troll`` the nodes ``East Troll``. Place the tokens on the left and right sides of the scene, respectively.
 
 
