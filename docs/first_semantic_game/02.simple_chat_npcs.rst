@@ -10,7 +10,7 @@ The NPC Sprite
 
 Here we will create a basic sprite that we can attach chat functionality to.
 
-1. In the ``MainGame`` scene that we created in :doc:`01.project_setup`
+1. In the ``ArguingTrolls`` scene that we created in :doc:`01.project_setup`
    insert an ``Area2D`` node and rename it to  ``NPC``.
 2. Add a ``CollisionShape2D`` rectangle to the NPC. This will be useful 
    later and removes the yellow warning in the workspace.
@@ -378,14 +378,14 @@ Troll Personalities
 3. **Save and Run**: Save the scene and run your game to ensure that the 
    troll NPCs are in place and ready to argue.
 
-Modify ``MainGame`` to connect the two trolls together.
+Modify ``ArguingTrolls`` to connect the two trolls together.
 
 .. code-block:: csharp
 
    using Godot;
    using Microsoft.SemanticKernel;
 
-   public partial class MainGame : Node
+   public partial class ArguingTrolls : Node
    {
        public override void _Ready()
        {
