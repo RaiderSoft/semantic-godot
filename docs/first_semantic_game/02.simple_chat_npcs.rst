@@ -120,6 +120,7 @@ Now the completed ``ChatEntity`` class should look like this:
     using Godot;
     using System;
 
+    [GlobalClass]
     public partial class ChatEntity : Area2D
     {
         [Export]
