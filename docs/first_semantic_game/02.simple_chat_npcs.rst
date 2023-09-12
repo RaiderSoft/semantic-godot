@@ -394,8 +394,8 @@ Modify ``ArguingTrolls`` to connect the two trolls together.
            GD.Print("Semantic Kernel is ready!");
 
            // Get the troll ChatEntities
-           ChatEntity eastTroll = GetNode<ChatEntity>("East Troll");
-           ChatEntity westTroll = GetNode<ChatEntity>("West Troll");
+           ChatEntity eastTroll = GetNode<ChatEntity>("EastTroll");
+           ChatEntity westTroll = GetNode<ChatEntity>("WestTroll");
 
            eastTroll._inConvoWith = westTroll;
            westTroll._inConvoWith = eastTroll;
