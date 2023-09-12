@@ -11,6 +11,8 @@ hard-coded into our scripts.)
 **Initial Class Structure**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Create ``ChatPlayer.cs`` with the following content.
+
 .. code-block:: csharp
 
     using Godot;

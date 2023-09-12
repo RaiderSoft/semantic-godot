@@ -5,10 +5,8 @@ Nearby ChatEntities
 --------------------
 
 Next, we'll write some properties and methods to keep track of other nearby entities. This will be
-used by the ``ChatPlayer`` node to display a list of entities to the player and to allow them to
-select an entity to start a conversation with. (Note: We won't set up the ``ChatAI`` node to use
-this feature in *this* project, but it could be useful if you want AI-driven NPCs to be able to see
-and keep track of objects in the world around them.)
+used by the ``ChatPlayer`` node to display a list of nearby entities to the player.
+
 
 List of Nearby Entities
 ^^^^^^^^^^^^^^^^^^^^^^^
