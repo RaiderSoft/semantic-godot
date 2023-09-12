@@ -1,10 +1,9 @@
 Movement and Collisions
 =======================
 
-In the last section, we saw how to create a simple scene that allowed us to connect Godot up to
-Sematic-Kernel and converse with a GPT-4 powered NPC. Now, our goal is to take this one step
-further by embedding that NPC in a slightly more developed game world, one with movement and
-collisions.
+In the last section, we saw how to connect Godot up to Sematic-Kernel and create two GPT-4 powered
+NPCs that could talk with each other. Now, our goal is to take this idea further by embedding such
+an NPC in more developed game world, one with movement and collisions.
 
 In this section, we'll just set up the world with it's movements and collisions, leaving the task
 of integrating the GPT-4 powered NPC until a later section. We'll set up the world shown at the
@@ -25,7 +24,8 @@ Setting Up the Scene
 ^^^^^^^^^^^^^^^^^^^^
 
 To start, create a new scene and add a ``CharacterBody2D`` node as the root. Rename this node to
-"Gralk" and save the scene as "gralk.tscn". In the inspector, set the following property:
+"Gralk" and save the scene as "gralk.tscn". In the inspector, set the following property so that
+all collisions will be considered to be collisions with walls (not with the ground or ceiling):
 
 * CharacterBody2D > Motion Mode = "Floating"
 
@@ -35,8 +35,8 @@ Next, add a ``CollisionShape2D`` node as a child of the ``Gralk`` node. Set the 
 
 Then, set the following properties for the ``RectangleShape2D``:
 
-* RectangleShape2D > Size > x = 100 px
-* RectangleShape2D > Size > y = 100 px
+* RectangleShape2D > Size > x = 75 px
+* RectangleShape2D > Size > y = 75 px
 
 Finally, add a ``Sprite2D`` node as a child of the ``Gralk`` node. The picture of Gralk is provided
 in the file *gralk.jpeg*. Add it to the sprite by dragging the file onto the ``Texture`` property
@@ -46,8 +46,8 @@ the drop-down menu. Then find and open *gralk.jpeg*.)
 You might notice the image of the troll is too big for the collision shape we made before. To fix
 this, set the following properties on the ``Sprite2D`` node:
 
-* Node2D > Transform > Scale > x = 0.098
-* Node2D > Transform > Scale > y = 0.098
+* Node2D > Transform > Scale > x = 0.5
+* Node2D > Transform > Scale > y = 0.5
 
 Writing the Script
 ^^^^^^^^^^^^^^^^^^
@@ -94,10 +94,11 @@ designated amount of time.
     }
 
 Finally, we'll add the temporary script that will allow us to trigger this movement by pressing the
-``ALT`` key. First, set up a new action in the project's input map. (You can access the input map
-by opening the project settings and clicking on the "Input Map" tab.) Add a new action called
-"allow_to_pass". Then add the ``ALT`` key as an input event for allow_to_pass. Once that's done, go
-back to the *Gralk.cs* script and add the following in the ``_Input()`` method.
+``ALT`` key (or the ``OPTION`` key on Mac). First, set up a new action in the project's input map.
+(You can access the input map by opening the project settings and clicking on the "Input Map" tab.)
+Add a new action called "allow_to_pass". Then add the ``ALT`` key (or ``OPTION`` key) as an input
+event for allow_to_pass. Once that's done, go back to the *Gralk.cs* script and add the following
+in the ``_Input()`` method.
 
 .. code-block:: csharp
 
@@ -122,7 +123,9 @@ Setting Up the Scene
 ^^^^^^^^^^^^^^^^^^^^
 
 To start, create a new scene and add a ``CharacterBody2D`` node as the root. Rename this node to
-"Seraphis" and save the scene as "seraphis.tscn". In the inspector, set the following property:
+"Seraphis" and save the scene as "seraphis.tscn". In the inspector, set the following property so
+that all collisions will be considered to be collisions with walls (not with the ground or
+ceiling):
 
 * CharacterBody2D > Motion Mode = "Floating"
 
@@ -133,8 +136,8 @@ property:
 
 Then, set the following properties for the ``RectangleShape2D``:
 
-* RectangleShape2D > Size > x = 100 px
-* RectangleShape2D > Size > y = 100 px
+* RectangleShape2D > Size > x = 75 px
+* RectangleShape2D > Size > y = 75 px
 
 Finally, add a ``Sprite2D`` node as a child of the ``Seraphis`` node. The picture of Seraphis is
 provided in the file *seraphis.png*. Add it to the sprite by dragging the file onto the ``Texture``
@@ -144,8 +147,8 @@ from the drop-down menu. Then find and open *seraphis.png*.)
 You might notice the image of Seraphis is too big for the collision shape we made just before. To fix
 this, set the following properties on the ``Sprite2D`` node:
 
-* Node2D > Transform > Scale > x = 0.141
-* Node2D > Transform > Scale > y = 0.141
+* Node2D > Transform > Scale > x = 0.5
+* Node2D > Transform > Scale > y = 0.5
 
 Writing the Script
 ^^^^^^^^^^^^^^^^^^
@@ -220,27 +223,25 @@ root. Rename this node to "Level" and save the scene as "level.tscn". Add an ins
 
 Next, add an instance of the *gralk.tscn* scene as a child of the ``Level`` node. (Make sure it is
 below the map in the scene tree so that it is drawn on top of the map.) Move Gralk so that he is
-located on the left end of the bridge. A position of (-80 px, 578 px) should work well for this.
+located at the entrance to the bridge so that the player will be unable to cross. A position of
+(-80 px, 578 px) should work well for this.
 
 Now, add an instance of the *seraphis.tscn* scene as a child of the ``Level`` node. (Again, make
 sure it is below the map in the scene tree.) Move Seraphis so that he is located somewhere on the
 left side of the river. A position of (-660 px, 278 px) should work well for this.
 
 Finally, we'd like the camera to follow Seraphis around as the player moves him using the arrow
-keys. To achieve this, add a ``Camera2D`` node as a child of Seraphis. Set the following
-properties:
-
-* Camera2D > Zoom > x = 0.75
-* Camera2D > Zoom > y = 0.75
-* Camera2D > Limit > Left = -2400 px
-* Camera2D > Limit > Top = -1350 px
-* Camera2D > Limit > Right = 2400 px
-* Camera2D > Limit > Bottom = 1350 px
+keys. To achieve this, add a ``Camera2D`` node as a child of Seraphis.
 
 Try It Out
 ^^^^^^^^^^
 
 This scene should now be ready to run! Press ``F6`` (or the "Run Current Scene" button). Confirm
 that you can move Seraphis around using the arrow keys and that he collides with Gralk and the
-various environmental obstacles. Try pressing ``ALT`` and make sure Gralk moves out of the way, off
-the left end of the bridge as intended.
+various environmental obstacles. Try pressing ``ALT`` (``OPTION`` on Mac) and make sure Gralk moves
+out of the way, off the left end of the bridge as intended.
+
+If the window is too small, you can configure display settings in project settings under
+Display > Window > Size. Set ``Viewport Width`` and ``Viewport Height`` to larger numbers, or set
+``Mode`` to "Fullscreen". You can also adjust the zoom level of the camera by setting the ``Zoom``
+property of the ``Camera2D`` node.
