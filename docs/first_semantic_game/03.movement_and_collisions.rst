@@ -38,10 +38,15 @@ Then, set the following properties for the ``RectangleShape2D``:
 * RectangleShape2D > Size > x = 75 px
 * RectangleShape2D > Size > y = 75 px
 
-Finally, add a ``Sprite2D`` node as a child of the ``Gralk`` node. The picture of Gralk is provided
-in the file *gralk.jpeg*. Add it to the sprite by dragging the file onto the ``Texture`` property
-in the inspector. (Alternately, you can click on the ``Texture`` property and select "Load" from
-the drop-down menu. Then find and open *gralk.jpeg*.)
+Finally, add a ``Sprite2D`` node as a child of the ``Gralk`` node. Download the picture of Gralk
+shown below. Add it to the sprite by dragging the file onto the ``Texture`` property in the
+inspector. (Alternately, you can click on the ``Texture`` property and select "Load" from the
+drop-down menu. Then find and open *gralk.png*.)
+
+.. image:: gralk.png
+   :alt: The Gralk sprite
+   :width: 150px
+   :align: center
 
 You might notice the image of the troll is too big for the collision shape we made before. To fix
 this, set the following properties on the ``Sprite2D`` node:
@@ -139,10 +144,15 @@ Then, set the following properties for the ``RectangleShape2D``:
 * RectangleShape2D > Size > x = 75 px
 * RectangleShape2D > Size > y = 75 px
 
-Finally, add a ``Sprite2D`` node as a child of the ``Seraphis`` node. The picture of Seraphis is
-provided in the file *seraphis.png*. Add it to the sprite by dragging the file onto the ``Texture``
-property in the inspector. (Alternately, you can click on the ``Texture`` property and select "Load"
-from the drop-down menu. Then find and open *seraphis.png*.)
+Finally, add a ``Sprite2D`` node as a child of the ``Seraphis`` node. Download the picture of
+Seraphis shown below. Add it to the sprite by dragging the file onto the ``Texture`` property in
+the inspector. (Alternately, you can click on the ``Texture`` property and select "Load" from the
+drop-down menu. Then find and open *seraphis.png*.)
+
+.. image:: seraphis.png
+   :alt: The Gralk sprite
+   :width: 150px
+   :align: center
 
 You might notice the image of Seraphis is too big for the collision shape we made just before. To fix
 this, set the following properties on the ``Sprite2D`` node:
@@ -208,11 +218,16 @@ of these elements in a level.
 The Map
 ^^^^^^^
 
-The map scene is provided premade in a file called *map.tscn*. Everything should be set up except
-the background picture, which is provided in the file *forest_bridge.jpg*. To add the picture, open
-*map.tscn* and select the ``Sprite2D`` node. In the inspector, set the ``Texture`` property by
-dragging *forest_bridge.jpg* onto it. (Alternately, you can click on the ``Texture`` property and
-select "Load" from the drop-down menu. Then find and open *forest_bridge.jpg*.)
+The map scene is provided premade here: :download:`map.tscn`. You'll also need to download the
+background image here: :download:`forest_bridge.jpg`. (The map scene will look for the background
+image at *res://forest_bridge.jpg*, so make sure to save the image in the root folder of your
+project. You will be unable to open *map.tscn* if it cannot find *forest_bridge.jpg*.) Now, open up
+*map.tscn*. You should see the following scene:
+
+.. image:: map_screenshot.png
+   :alt: The Map Scene
+   :width: 638px
+   :align: center
 
 The Level
 ^^^^^^^^^
@@ -241,7 +256,12 @@ that you can move Seraphis around using the arrow keys and that he collides with
 various environmental obstacles. Try pressing ``ALT`` (``OPTION`` on Mac) and make sure Gralk moves
 out of the way, off the left end of the bridge as intended.
 
+.. image:: level_screenshot.png
+   :alt: The level with Gralk on/off the bridge
+   :width: 800px
+   :align: center
+
 If the window is too small, you can configure display settings in project settings under
 Display > Window > Size. Set ``Viewport Width`` and ``Viewport Height`` to larger numbers, or set
-``Mode`` to "Fullscreen". You can also adjust the zoom level of the camera by setting the ``Zoom``
+``Mode`` to "Maximized". You can also adjust the zoom level of the camera by setting the ``Zoom``
 property of the ``Camera2D`` node.
