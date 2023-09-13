@@ -10,16 +10,14 @@ The NPC Sprite
 
 Here we will create a basic sprite that we can attach chat functionality to.
 
-1. In the ``MainGame`` scene that we created in :doc:`01.project_setup`
-   insert an ``Area2D`` node and rename it to  ``NPC``.
-2. Add a ``CollisionShape2D`` rectangle to the NPC. This will be useful 
-   later and removes the yellow warning in the workspace.
-3. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
+1. In the ``ArguingTrolls`` scene that we created in :doc:`01.project_setup`
+   insert an ``Node2D`` node and rename it to  ``NPC``.
+2. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
    makes a visible sprite for our character.
-4. To set the image for our NPC sprite, copy the troll portrait into 
+3. To set the image for our NPC sprite, copy the troll portrait into 
    the project. Then locate and choose the image as an ``ImageTexture`` 
    in the properties panel for the ``Sprite2D`` node.
-5. Drag the NPC image near the center of the scene. Build and run the project to
+4. Drag the NPC image near the center of the scene. Build and run the project to
    see the river troll NPC token.
 
 Meet Gralk:
@@ -40,9 +38,21 @@ we will extend this node type to create ``ChatAI`` for GPT-4 driven NPCs and
 ``ChatPlayer`` for player characters.
 
 Right-click the filesystem dock and select "New Script...". **Make sure the language 
-is set to C#** and it inherits from ``Area2D``.
+is set to C#** and it inherits from ``Node2D``.
 
 Save this script as ``ChatEntity.cs`` in the project's root directory.
+
+To register this script with the Godot editor, add the ``[GlobalClass]`` attribute right above the class declaration.
+
+.. code-block:: csharp
+
+    [GlobalClass]
+    public partial class ChatEntity : Node2D
+    {
+        ...
+    }
+
+For more information about Godot's global classes, see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html
 
 Exported Properties
 ^^^^^^^^^^^^^^^^^^^
@@ -96,6 +106,12 @@ partner. This will be used later to send messages to the other entity.
 This ``_inConvoWith`` field is declared as ``internal`` so that it can be accessed
 by the main game class.
 
+.. code-block:: csharp
+
+    internal ChatEntity _inConvoWith;
+
+Next, we will add methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
+
 Now the completed ``ChatEntity`` class should look like this:
 
 .. code-block:: csharp
@@ -103,7 +119,8 @@ Now the completed ``ChatEntity`` class should look like this:
     using Godot;
     using System;
 
-    public partial class ChatEntity : Area2D
+    [GlobalClass]
+    public partial class ChatEntity : Node2D
     {
         [Export]
         public string ChatName;
@@ -341,9 +358,10 @@ Creating the East and West Troll Nodes
 1. **Create an NPC Scene**: Drag the ``NPC`` node from the main scene into 
    the filesystem dock to create a new scene. This will convert the node
    in the main scene to an instance of the new scene.
-2. **Duplicate the NPC**: Create a second troll by right-clicking the 
-   ``NPC.tscn`` scene in the filesystem dock and selecting "Duplicate". 
-3. **Rename Nodes**: Name the nodes ``West Troll`` the nodes ``East Troll``. Place the tokens on the left and right sides of the scene, respectively.
+2. **Second NPC**: Create a second troll by dragging the 
+   ``NPC.tscn`` scene into the scene tree. This should add a
+   second instance of the ``NPC`` node to the main scene. 
+3. **Rename Nodes**: Name the nodes ``WestTroll`` the nodes ``EastTroll``. Place the tokens on the left and right sides of the scene, respectively.
 
 
 Troll Personalities
@@ -361,22 +379,22 @@ Troll Personalities
 3. **Save and Run**: Save the scene and run your game to ensure that the 
    troll NPCs are in place and ready to argue.
 
-Modify ``MainGame`` to connect the two trolls together.
+Modify ``ArguingTrolls`` to connect the two trolls together.
 
 .. code-block:: csharp
 
    using Godot;
    using Microsoft.SemanticKernel;
 
-   public partial class MainGame : Node
+   public partial class ArguingTrolls : Node
    {
        public override void _Ready()
        {
            GD.Print("Semantic Kernel is ready!");
 
            // Get the troll ChatEntities
-           ChatEntity eastTroll = GetNode<ChatEntity>("East Troll");
-           ChatEntity westTroll = GetNode<ChatEntity>("West Troll");
+           ChatEntity eastTroll = GetNode<ChatEntity>("EastTroll");
+           ChatEntity westTroll = GetNode<ChatEntity>("WestTroll");
 
            eastTroll._inConvoWith = westTroll;
            westTroll._inConvoWith = eastTroll;
