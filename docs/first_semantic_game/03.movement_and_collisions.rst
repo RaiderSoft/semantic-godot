@@ -24,7 +24,7 @@ Setting Up the Scene
 ^^^^^^^^^^^^^^^^^^^^
 
 To start, create a new scene and add a ``CharacterBody2D`` node as the root. Rename this node to
-"Gralk" and save the scene as "gralk.tscn". In the inspector, set the following property so that
+``Gralk`` and save the scene as *gralk.tscn*. In the inspector, set the following property so that
 all collisions will be considered to be collisions with walls (not with the ground or ceiling):
 
 * CharacterBody2D > Motion Mode = "Floating"
@@ -64,11 +64,11 @@ movement and collisions are all working correctly.
 
 First, attach a new script to the ``Gralk`` node. Make sure it is a C# script, that it inherits
 from ``CharacterBody2D``, and that it is using the "Node: Default" template. Then save it as
-"Gralk.cs".
+*Gralk.cs*.
 
 With the script open, we'll add the property ``_allowToPassPosition``, which will hold the position
 that we want to move Gralk to in order to allow the player to pass. In the ``_Ready()`` method,
-we'll set this position to be 256 pixels left of Gralk's starting position (so that Gralk will move
+we'll set this position to be 300 pixels left of Gralk's starting position (so that Gralk will move
 left off the end of the bridge).
 
 .. code-block:: csharp
@@ -128,7 +128,7 @@ Setting Up the Scene
 ^^^^^^^^^^^^^^^^^^^^
 
 To start, create a new scene and add a ``CharacterBody2D`` node as the root. Rename this node to
-"Seraphis" and save the scene as "seraphis.tscn". In the inspector, set the following property so
+``Seraphis`` and save the scene as *seraphis.tscn*. In the inspector, set the following property so
 that all collisions will be considered to be collisions with walls (not with the ground or
 ceiling):
 
@@ -164,14 +164,14 @@ Writing the Script
 ^^^^^^^^^^^^^^^^^^
 
 Before we write the script, we should first set up the appropriate actions in the project's input
-map. Add four new actions: "move_left", "move_right", "move_up", and "move_down". Then add the
-corresponding arrow key as an input event for each of these actions (left arrow key for move_left,
-right arrow key for move_right, etc.).
+map. Add four new actions: ``move_left``, ``move_right``, ``move_up``, and ``move_down``. Then add
+the corresponding arrow key as an input event for each of these actions (left arrow key for
+``move_left``, right arrow key for ``move_right``, etc.).
 
 With these actions set up, we can now write a script that will enable Seraphis to move based on
 player input. First, attach a new script to the ``Seraphis`` node. Make sure it is a C# script,
 that it inherits from ``CharacterBody2D``, and that it is using the "Node: Default" template. Then
-save it as "Seraphis.cs".
+save it as *Seraphis.cs*.
 
 We should first add a ``Speed`` property to this script and export it to the editor so that we can
 easily edit Seraphis's speed later on if we desire.
@@ -233,7 +233,7 @@ The Level
 ^^^^^^^^^
 
 Now we'll set up the level scene. To start, create a new scene and add a ``Node2D`` node as the
-root. Rename this node to "Level" and save the scene as "level.tscn". Add an instance of the
+root. Rename this node to ``Level`` and save the scene as *level.tscn*. Add an instance of the
 *map.tscn* scene as a child of the ``Level`` node.
 
 Next, add an instance of the *gralk.tscn* scene as a child of the ``Level`` node. (Make sure it is
@@ -251,9 +251,9 @@ keys. To achieve this, add a ``Camera2D`` node as a child of Seraphis.
 Try It Out
 ^^^^^^^^^^
 
-This scene should now be ready to run! Press ``F6`` (or the "Run Current Scene" button). Confirm
+This scene should now be ready to run! Press F6 (or the "Run Current Scene" button). Confirm
 that you can move Seraphis around using the arrow keys and that he collides with Gralk and the
-various environmental obstacles. Try pressing ``ALT`` (``OPTION`` on Mac) and make sure Gralk moves
+various environmental obstacles. Try pressing ALT (OPTION on Mac) and make sure Gralk moves
 out of the way, off the left end of the bridge as intended.
 
 .. image:: level_screenshot.png
