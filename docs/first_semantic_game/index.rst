@@ -142,7 +142,7 @@ It has ChatGPT's usual corny style, and it reads like an OpenAI advert, but... /
    01.project_setup
    02.simple_chat_npcs
    03.movement_and_collisions
-   04.a_creating_chatEntity
+   04.chatEntity_conversations
    04.b_using_chatEntity
    05.user_interface
    06.evaluating_guesses
