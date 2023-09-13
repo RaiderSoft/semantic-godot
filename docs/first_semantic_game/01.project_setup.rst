@@ -38,11 +38,11 @@ a dotnet project.
         using Godot;
         using Microsoft.SemanticKernel;
 
-<<<<<<< HEAD
-        public partial class MainGame : Node
-=======
         public partial class ArguingTrolls : Node
+        {
+            public override void _Ready()
             {
+                GD.Print("Semantic Kernel is ready!");
             }
         }
 
