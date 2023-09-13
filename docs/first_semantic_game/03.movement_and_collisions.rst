@@ -3,7 +3,7 @@ Movement and Collisions
 
 In the last section, we saw how to connect Godot up to Sematic-Kernel and create two GPT-4 powered
 NPCs that could talk with each other. Now, our goal is to take this idea further by embedding such
-an NPC in more developed game world, one with movement and collisions.
+an NPC in a more developed game world, one with movement and collisions.
 
 In this section, we'll just set up the world with it's movements and collisions, leaving the task
 of integrating the GPT-4 powered NPC until a later section. We'll set up the world shown at the
@@ -150,7 +150,7 @@ the inspector. (Alternately, you can click on the ``Texture`` property and selec
 drop-down menu. Then find and open *seraphis.png*.)
 
 .. image:: seraphis.png
-   :alt: The Gralk sprite
+   :alt: The Seraphis sprite
    :width: 150px
    :align: center
 
