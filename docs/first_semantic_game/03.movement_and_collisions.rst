@@ -99,10 +99,10 @@ designated amount of time.
     }
 
 Finally, we'll add the temporary script that will allow us to trigger this movement by pressing the
-``ALT`` key (or the ``OPTION`` key on Mac). First, set up a new action in the project's input map.
+ALT key (or the OPTION key on Mac). First, set up a new action in the project's input map.
 (You can access the input map by opening the project settings and clicking on the "Input Map" tab.)
-Add a new action called "allow_to_pass". Then add the ``ALT`` key (or ``OPTION`` key) as an input
-event for allow_to_pass. Once that's done, go back to the *Gralk.cs* script and add the following
+Add a new action called ``allow_to_pass``. Then add the ALT key (or OPTION key) as an input
+event for ``allow_to_pass``. Once that's done, go back to the *Gralk.cs* script and add the following
 in the ``_Input()`` method.
 
 .. code-block:: csharp
