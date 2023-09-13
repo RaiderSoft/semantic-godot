@@ -1,163 +1,412 @@
 Simple Chat NPCs
-================
-    
-This tutorials aims to guide you through the process of creating semantic non-player characters (NPCs) that can hold interactive conversations in your Godot engine game.
+=================
 
-Creating a Basic NPC
------------------------
+This section aims to guide you through the process of creating NPCs that 
+can hold interactive conversations.  It assumes that you have completed the 
+project setup and have configured the OPENAI_API_KEY user secret.
 
-With the Semantic Kernel set up and Godot Project running, the next step is to create a basic NPC for the player to interact with. Here we will use simple shapes for NPCs instead of more lifelike characters.
+The NPC Sprite
+--------------
 
-Step 1: Creating the NPC Sprite
-**********************************
+Here we will create a basic sprite that we can attach chat functionality to.
 
-- Switch to the 2D workspace in Godot.
-- In the Scene tab, click the "+" symbol to add a 'Node'. In the "Create New Node" window, Double click on `Area2D` to add it to the scene. This will serve as the basis of your NPC.
-- Rename the `Area2D` node to 'NPC' or any name you prefer.
-- With the 'NPC' node selected, add another new node under it. This time, choose a `CollisionShape2D`. This is important as it dictates the clickable interactable area for your NPC.
-- To create a visible entity for the NPC, create another child node under the `CollisionShape2D` called `Sprite`. Here you can upload or select any simple 2D shape image you have available.
+1. In the ``ArguingTrolls`` scene that we created in :doc:`01.project_setup`
+   insert an ``Node2D`` node and rename it to  ``NPC``.
+2. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
+   makes a visible sprite for our character.
+3. To set the image for our NPC sprite, copy the troll portrait into 
+   the project. Then locate and choose the image as an ``ImageTexture`` 
+   in the properties panel for the ``Sprite2D`` node.
+4. Drag the NPC image near the center of the scene. Build and run the project to
+   see the river troll NPC token.
 
-Step 2: Setting up the NPC Node Architecture
-*************************************************
+Meet Gralk:
 
-Right click on the 'NPC' node and select "Attach Script". Pick an intuitive name for the script and hit "Create".
+.. image:: gralk.png
+   :alt: The Gralk NPC sprite
+   :width: 150px
+   :align: center
 
-Player Character Creation and Movement
-----------------------------------------
 
-TODO
+The ChatEntity class
+--------------------
+
+Here we a define a base class called ``ChatEntity`` for all chat-enabled  entities in the game. 
+This type encapsulates basic properties like a name and a description, and, later, 
+it handles behaviors such as detecting other nearby chat entities. Subsequently, 
+we will extend this node type to create ``ChatAI`` for GPT-4 driven NPCs and 
+``ChatPlayer`` for player characters.
+
+Right-click the filesystem dock and select "New Script...". **Make sure the language 
+is set to C#** and it inherits from ``Node2D``.
+
+Save this script as ``ChatEntity.cs`` in the project's root directory.
+
+To register this script with the Godot editor, add the ``[GlobalClass]`` attribute right above the class declaration.
 
 .. code-block:: csharp
 
-   public partial class Player : CharacterBody2D
-   {
-       ...
+    [GlobalClass]
+    public partial class ChatEntity : Node2D
+    {
+        ...
+    }
 
-       // Called when the node enters the scene tree for the first time.
-       public override void _Ready()
-       {
-           ...
-       }
+For more information about Godot's global classes, see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html
 
-       // Called once per physics tick
-       public override void _PhysicsProcess(double delta)
-       {
-           ...
-       }
-   }
+Exported Properties
+^^^^^^^^^^^^^^^^^^^
+
+We’ll add two properties: ``ChatName`` and ``ChatDescr``. ``ChatName`` stores the 
+entity's name and will be visible to any nearby entities, while ``ChatDescr`` 
+holds a description of the entity. Both properties are exported for easy 
+modification in the Godot inspector.
+
+Put the following inside the ``ChatEntity`` class.
+
+.. code-block:: csharp
+
+   [Export]
+   public string ChatName = "";
+
+   [Export(PropertyHint.MultilineText)]
+   public string ChatDescr = "";
+
+After saving the script, attach it to the ``NPC`` node in the main scene.
+Inspect the properties of the NPC, you should see ``ChatName`` and ``ChatDescr``.
+
+Next, we will add methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
+
+The ``SendMsg`` method is called when the entity wants to send a message to another
+entity. It prints the message to the console and then emits a ``MsgSent`` signal
+with the message as an argument. 
+
+``ReceiveMsg`` is called when the entity receives a message from another entity.
+We expect this method to be overridden by a child class because the behavior of
+receiving a message will be different for different types of entities.
+
+.. code-block:: csharp
+
+    [Signal]
+    public delegate void MsgSentEventHandler(string msg);
+
+    public virtual void SendMsg(string msg)
+    {
+        GD.Print(ChatName + ": " + msg);
+        CallDeferred("emit_signal", "MsgSent", msg);
+    }
+
+    public virtual void ReceiveMsg(string msg)
+    {
+        // This function will be overridden later by a child class
+    }
+
+Finally, we need to add a field to store a reference to our current conversation
+partner. This will be used later to send messages to the other entity.
+This ``_inConvoWith`` field is declared as ``internal`` so that it can be accessed
+by the main game class.
+
+.. code-block:: csharp
+
+    internal ChatEntity _inConvoWith;
 
 
-Our first ChatAI class
-----------------------
-
-The `ChatAI` class to be used in the demo is responsible for setting up and
-managing the conversations between NPCs, it uses OpenAI's GPT model via Semantic
-Kernel to handle the interactions. 
-
-In this class, the following methods are used:
-
-- `GetApiKey` for retrieving the OpenAI API key from .NET secrets storage
-- A method to initialize GPT model via Semantic Kernel
-- A method to receive message and respond asynchronously
-
-This is what the base `ChatAI` class should look like:
+Now the completed ``ChatEntity`` class should look like this:
 
 .. code-block:: csharp
 
     using Godot;
-    using Microsoft.SemanticKernel;
-    using Microsoft.SemanticKernel.AI.ChatCompletion;
-    using Microsoft.Extensions.Configuration;
-    using System.Threading.Tasks;
-    
-    public class ChatAI : Node
+    using System;
+
+    [GlobalClass]
+    public partial class ChatEntity : Node2D
     {
-        // Your OpenAI GPT instance
-        IChatCompletion _chatGPT;
-        
-        // Retrieve API key from .NET secrets, throw an Exception if not found
-        private string GetApiKey()
+        [Export]
+        public string ChatName;
+
+        [Export(PropertyHint.MultilineText)]
+        public string ChatDescr;
+
+        internal ChatEntity _inConvoWith;
+
+        [Signal]
+        public delegate void MsgSentEventHandler(string msg);
+
+        public virtual void SendMsg(string msg)
         {
-            var configuration = new ConfigurationBuilder()
-                .AddUserSecrets<ChatAI>()
-                .Build();
-    
-            var apiKeyVarName = "OPENAI_API_KEY";
-            var apiKey = configuration[apiKeyVarName];
-    
-            if (apiKey == null)
-            {
-                throw new Exception($"Please set the {apiKeyVarName} user secret.");
-            }
-    
-            return apiKey;
+            GD.Print(ChatName + ": " + msg);
+            CallDeferred("emit_signal", "MsgSent", msg);
         }
-    
-        public override void _Ready()
+
+        public virtual void ReceiveMsg(string msg)
         {
-            var apiKey = GetApiKey();
-            _chatGPT = InitializeGptModel(apiKey);
-        }
-    
-        // Implement your Semantic Kernel initialization here
-        private IChatCompletion InitializeGptModel(string apiKey)
-        {
-            var _kernel = new KernelBuilder()
-                            .WithOpenAIChatCompletionService("gpt-4", apiKey, "")
-                            .Build();
-            _chatGPT = _kernel.GetService<IChatCompletion>();
-            return _chatGPT;
-        }
-    
-        // Method to receive a message from another character
-        public void ReceiveMsg(string msg)
-        {
-            Task.Run(() => ReplyAsync(msg));
-        }
-    
-        // Method to read, process, and respond to messages asynchronously
-        private async Task ReplyAsync(string msg)
-        {
-            var chatHistory = _chatGPT.CreateNewChat();
-            chatHistory.AddUserMessage(msg);
-            var generatedMessage = await _chatGPT.GenerateMessageAsync(chatHistory);
-            EmitSignal(nameof(ReplyGenerated), generatedMessage);      
+            // This function will be overridden later by a child class
         }
     }
 
-Testing the Minimal `ChatAI` Class
-----------------------------------
+The ChatAI class
+----------------
 
-To verify the `ChatAI` minimal class, setup an interaction between two NPCs and allow them to communicate via `ReceiveMsg(msg)` method. Connect a handler function to the `ReplyGenerated` signal in order to observe the generated response, thus demonstrating an interactive conversation powered by Semantic Kernel.
+Now we will create a new node type called ``ChatAI`` that extends ``ChatEntity``
+and adds the ability to use GPT-4 to generate responses to messages. This class
+will be used for NPCs that can hold interactive conversations. 
+
+Create ``ChatAI.cs`` with the following content and attach it to the NPC node.
+Later in the tutorial we will instantiate two ``ChatAI`` nodes instead of attaching
+the script to the NPC node directly.
+
+.. code-block:: csharp
+
+    using Godot;
+
+    using System;
+    using System.Threading.Tasks;
+    using System.IO;
+
+    using Microsoft.SemanticKernel;
+    using Microsoft.SemanticKernel.AI.ChatCompletion;
+    using Microsoft.SemanticKernel.Connectors.AI.OpenAI.ChatCompletion;
+    using Microsoft.SemanticKernel.TemplateEngine.Prompt;
+    using Microsoft.Extensions.Configuration;
+
+    [GlobalClass]
+    public partial class ChatAI : ChatEntity
+    {
+        // Used for making calls to OpenAI.
+        protected IChatCompletion _chatGPT;
+
+        // The chat history, including system messages.
+        protected OpenAIChatHistory _chat;
+
+        // The semantic kernel.
+        protected readonly IKernel _kernel;
+
+        // For variable substitution into prompts.
+        protected readonly PromptTemplateEngine _promptRenderer;
+    }
+
+
+ChatAI Constructor
+^^^^^^^^^^^^^^^^^^
+
+The constructor fetches the OpenAI API key dynamically
+from the dotnet user-secret store via ``GetApiKey()``,
+and then initializes ChatGPT and the semantic kernel.
+
+This is also where GPT-4 is chosen as the model.
+
+.. code-block:: csharp    
+
+    public ChatAI()
+    {
+        string apiKey = GetApiKey();
+        _promptRenderer = new PromptTemplateEngine();
+        _kernel = new KernelBuilder()
+            .WithOpenAIChatCompletionService("gpt-4", apiKey, "")
+            .Build();
+        _chatGPT = _kernel.GetService<IChatCompletion>();
+    }
+
+    // Get the OpenAI API key from user secrets
+    private string GetApiKey()
+    {
+        var configuration = new ConfigurationBuilder()
+        .AddUserSecrets<ChatAI>()
+        .Build();
+
+        var apiKeyVarName = "OPENAI_API_KEY";
+        var apiKey = configuration[apiKeyVarName];
+
+        if (apiKey == null)
+        {
+            throw new System.Exception($"Please set the {apiKeyVarName} user secret.");
+        }
+
+        return apiKey;
+    }
 
 
 
-Conversing with the NPC
--------------------------
 
-Include a trigger that starts a conversation when the player interacts with the NPC. Here's a simplified UI demonstration example in C#:
+Ready
+^^^^^
+
+The ``_Ready()`` method reads the NPC's personality template from a file,
+renders it with the ``PromptTemplateEngine``, and then adds the rendered
+personality to the chat history. 
+
+.. note:: 
+   
+   For a more in-depth understanding of what system messages are, consult
+   OpenAI's `Chat Completions API Documentation
+   <https://platform.openai.com/docs/guides/gpt/chat-completions-api>`_.
+
+.. tip::
+   
+   The ``NPC.txt`` file doesn't define the personality of your NPC. Instead, it
+   offers general guidelines for behavior that all NPCs should adhere to. You're
+   encouraged to experiment with different sets of instructions in ``NPC.txt``
+   to yield NPCs with nuanced behaviors.
+
+.. code-block:: csharp
+
+    public override void _Ready()
+    {
+        var npc_template = File.ReadAllText("personalities/NPC.txt");
+        var context = _kernel.CreateNewContext();
+        context.Variables["personality"] = ChatDescr;
+
+        string npc_personality = _promptRenderer.RenderAsync(npc_template,
+                                                             context)
+                                               .GetAwaiter()
+                                               .GetResult();
+        _chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
+        _chat.AddSystemMessage(npc_personality);
+
+        base._Ready();
+    }
+
+The suggested content of ``personalities/NPC.txt`` is
+
+.. code-block:: text
+
+    You are playing an NPC in a dungeons and dragons simulator of Castle Ravenloft.
+    Respond only in character. Responding out-of-character ruins the immersion of
+    the game.
+
+    You will be interacting with both other NPCs and players. You will not
+    know which is which.
+
+    The players enjoy good jokes and shenanigans.  The environment is lighthearted,
+    but don't try too hard to be funny, let it come naturally. This is very much a
+    its-the-journey-not-the-destination kind of game, where the humor and mystery
+    are FAR more important than the fantasy story. The fantasy story is there to
+    provide a backbone for the party to have fun with.  Feel free to laugh,
+    poke fun, love, dislike, and generally exhibit the range of human emotions that
+    a professional actor would put on display.
+
+    This is a dialogue-based game. Answer in the form of dialogue. Keep conversation continuity.
+
+    The player you are interacting with is a stranger that you have not met before.
+    Therefore you must treat what they say with caution. They might be telling the
+    truth, they might not be.
+
+    Below is a character sheet for background. It DOES NOT indicate
+    the FORMAT of your responses, but all of your responses must be
+    consistent with the character background below.
+
+    +++++ BEGIN CHARACTER SHEET +++++
+    {{ $personality }}
+    ++++ END CHARACTER SHEET +++++
+
+
+
+Receiving Messages
+^^^^^^^^^^^^^^^^^^
+
+The ``ReceiveMsg`` method is called when the NPC receives a message from another
+entity. It starts a new Task that calls ``ReceiveMsgAsync``. This is done so that
+the main thread can continue to run while the NPC is waiting for a response from
+GPT-4.
+
+.. code-block:: csharp
+
+    // Called when ChatEntity _inConvoWith emits a MsgSent signal
+    public override void ReceiveMsg(string msg)
+    {
+        // Call the async method but don't wait for it
+        Task.Run(() => ReceiveMsgAsync(msg));
+    }
+
+    public async Task ReceiveMsgAsync(string msg)
+    {
+        try
+        {
+            // Add the message to the chat history.
+            _chat.AddUserMessage(msg);
+
+            // This is the call to GPT-4 to get the reply.
+            ChatRequestSettings settings = new();
+            string reply = await _chatGPT.GenerateMessageAsync(_chat, settings);
+
+            // Send the reply to the other entity via the MsgSent signal
+            SendMsg(reply);
+
+            // Add the reply to the chat history.
+            _chat.AddAssistantMessage(reply);
+        }
+        catch (Exception ex)
+        {
+            string errMsg = $"Could not get reply from {ChatName}: {ex.Message}";
+            GD.PrintErr(errMsg);
+        }
+    }
+
+
+Two Arguing NPCs
+----------------
+
+In this section, you will learn how to set up NPCs named "East Troll" and 
+"West Troll" to automatically argue with each other using Godot's properties
+panel. These trolls are configured to have a debate about which side of the 
+river is better.
+
+Creating the East and West Troll Nodes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. **Create an NPC Scene**: Drag the ``NPC`` node from the main scene into 
+   the filesystem dock to create a new scene. This will convert the node
+   in the main scene to an instance of the new scene.
+2. **Second NPC**: Create a second troll by dragging the 
+   ``NPC.tscn`` scene into the scene tree. This should add a
+   second instance of the ``NPC`` node to the main scene. 
+3. **Rename Nodes**: Name the nodes ``WestTroll`` the nodes ``EastTroll``. Place the tokens on the left and right sides of the scene, respectively.
+
+
+Troll Personalities
+^^^^^^^^^^^^^^^^^^^
+
+1. **Edit East Troll ChatDescr**: Find the ``ChatDescr`` 
+   in the properties panel. Here, input the description: "I engage in a 
+   passionate debate with the West Troll over why my side of the river is 
+   superior."
+
+2. **Edit West Troll ChatDescr**: Similar to the East Troll, enter a description that 
+   states, "I argue with the East Troll about why my side of the river is 
+   far better."
+
+3. **Save and Run**: Save the scene and run your game to ensure that the 
+   troll NPCs are in place and ready to argue.
+
+Modify ``ArguingTrolls`` to connect the two trolls together.
 
 .. code-block:: csharp
 
    using Godot;
-   using System;
+   using Microsoft.SemanticKernel;
 
-   public partial class MinimalUserInterface : Control
+   public partial class ArguingTrolls : Node
    {
-       ...
-       // Signal handler for when the submit button is pressed
-       public void OnSubmitPressed()
+       public override void _Ready()
        {
-           // Grab the user text
-           string userText = _textInput.Text;
+           GD.Print("Semantic Kernel is ready!");
 
-           // Clear the LineEdit
-           _textInput.Text = "";
+           // Get the troll ChatEntities
+           ChatEntity eastTroll = GetNode<ChatEntity>("East Troll");
+           ChatEntity westTroll = GetNode<ChatEntity>("West Troll");
 
-           // For testing purposes, print the input text to the console
-           GD.Print(userText);
+           eastTroll._inConvoWith = westTroll;
+           westTroll._inConvoWith = eastTroll;
 
-           // The actual handling of userText will handle the AI interaction and handle the response.
+           // Connect up the MsgSent signals
+           eastTroll.MsgSent += westTroll.ReceiveMsg;
+           westTroll.MsgSent += eastTroll.ReceiveMsg;
+
+           // Start the conversation
+           eastTroll.SendMsg($"I am the {eastTroll.ChatName}! And my side is the best side of the river!");
        }
    }
+
+
+Now run the game and watch the trolls argue!
 

@@ -5,29 +5,24 @@ Creating a New Godot Project
 ----------------------------
 
 1. Launch Godot
-2. Navigate to "New Project" in the Project Manager.
-3. Define a project name and designate a location on the system for project files. Create a dedicated folder for this purpose.
-   The compatibility renderer works fine for our purposes.
-
-For more information on using C# with Godot see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_basics.html
+2. Click ``+ New Project`` in the Project Manager and create a new project.
 
 Hello World Script
 ------------------
 
-First, let's create a simple C# script which will trigger Godot to initialize
+First, let's create a simple C# script. Doing so will cause Godot to initialize
 a dotnet project.
 
 1. **Create a Node and Attach the Script**:
-    - Create a new 2D scence with a Node2D root.
-    - Right click the node and rename it to `MainGame`
+    - Create a new 2D scene with a Node2D root.
+    - Right click the node and rename it to `ArguingTrolls`
     - Right click the node and click `Attach Script`
         - Choose C# as the language
-        - This will create `MainGame.cs`
+        - This will create `ArguingTrolls.cs`
     - Save the scene
 
-2.
-    Open a terminal, navigate to the project directory, and run the following
-    commands to install dependencies:
+2. Open a terminal, navigate to the project directory, and run the following 
+   commands to install dependencies:
 
 .. code-block:: shell
 
@@ -36,27 +31,26 @@ a dotnet project.
     dotnet add package Microsoft.SemanticKernel --prerelease
 
 
-3. **Create a Main Script**: 
+3. **Create a ArguingTrolls.cs**: 
 
     .. code-block:: csharp
 
         using Godot;
         using Microsoft.SemanticKernel;
 
-        public class MainGame : Node
+        public partial class ArguingTrolls : Node
         {
             public override void _Ready()
             {
                 GD.Print("Semantic Kernel is ready!");
-                // You can add additional code to interact with Semantic Kernel here.
             }
         }
-
-
 
 4. **Build the Project**: Press ``F6`` or select ``Project > Build`` from the menu to build the project.
 
 5. **Verify the Output**: Look for the message "Semantic Kernel is ready!" in the output console. 
+
+For more information on using C# with Godot see https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_basics.html
 
 Configuring the OpenAI API Key
 ------------------------------
@@ -69,17 +63,10 @@ need to obtain and configure the OpenAI API key.
     - Navigate to the API keys section and generate or copy your API key.
 
 2. **Configure API Key in .NET**:
-    - Open a terminal and navigate to your Godot project directory.
-    - Run the following command to initialize user-secrets for your project:
 
     .. code-block:: shell
 
         dotnet user-secrets init
-
-    - Run the following command, replacing `YOUR_API_KEY` with your actual OpenAI API key:
-
-    .. code-block:: shell
-
         dotnet user-secrets set "OPENAI_API_KEY" "YOUR_API_KEY"
 
 3. **Verify the Secret Configuration**: To make sure that the API key is properly stored, run:
