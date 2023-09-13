@@ -1,8 +1,10 @@
 ChatPlayer
 ==========
 
-In this section we will create the ``ChatPlayer`` node. By the end of this
-section, we should be able to see when two characters get close enough to see each other, when they
+In this section we will create the ``ChatPlayer`` node. 
+
+
+we should be able to see when two characters get close enough to see each other, when they
 start and end conversations, and when they send and respond to messages. (Note: Since we don't have
 the UI set up yet, all of this will be shown in the terminal for now and messages will need to be
 hard-coded into our scripts.)
@@ -143,9 +145,15 @@ Update your functions to replace ``GD.Print()`` with ``EmitSignal()``. Here are 
 Adding to Gralk Scene
 ^^^^^^^^^^^^^^^^^^^^^
 
-Open the Gralk scence. 
+While we are here, let's update the personality of Gralk so that it matches
+the final version of the game. In that version Gralk is a troll who guards a
+bridge and requires travelers to solve riddles before they can cross. 
+
+Open the Gralk scene. 
 
 * Add a ``ChatAI`` node to the Gralk scene.
+    - The ``ChatName`` should be "Gralk".
+    - The ``ChatDescr`` should be something like the following:
 
 .. code:: text
 
