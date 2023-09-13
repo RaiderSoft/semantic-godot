@@ -110,6 +110,7 @@ by the main game class.
 
     internal ChatEntity _inConvoWith;
 
+Next, we will add methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
 
 Now the completed ``ChatEntity`` class should look like this:
 
