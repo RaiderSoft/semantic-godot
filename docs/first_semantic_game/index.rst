@@ -145,6 +145,6 @@ It has ChatGPT's usual corny style, and it reads like an OpenAI advert, but... /
    04.chatEntity_conversations
    05.the_player
    06.user_interface
-   07.evaluating_guesses
+   07.prompt_engineering
    08.treasure_chest
    09.additional_resources

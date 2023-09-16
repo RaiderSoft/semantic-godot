@@ -1,8 +1,13 @@
-The Limerick Game
-=================
+Prompt Engineering
+==================
 
-Initialization and Setup
-------------------------
+Engineering a Limerick Riddle
+-----------------------------
+
+
+
+The TrollAI Class
+-----------------
 
 Instructions for creating the TrollAI class:
 Start by creating a new C# script called `TrollAI.cs` and add the following code:
