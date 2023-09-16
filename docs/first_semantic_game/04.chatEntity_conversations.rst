@@ -1,113 +1,55 @@
 ChatEntity Conversations
 ========================
 
-TODO
+With the "physical" game world all set up, we can start on the work to integrate a GPT-4 powered
+NPC with that world. We'll start with the ``ChatEntity`` and ``ChatAI`` scripts that we've already
+written, and we'll enhance them in ways that will allow them to interact with other entities in
+their vicinity. Once done, we'll add a ``ChatAI`` node as a child of the Gralk scene we created in
+the last section. Then, in the next two sections, we'll work on making a ``ChatPlayer`` node that
+will allow the player to chat with Gralk and other GPT-4 powered NPCs.
 
 Part 1: Updating ChatEntity
 ---------------------------
 
-TODO
-
-* Change to inherit from Area2D
-* Will break ArguingTrolls Scene
-* Allows us to sense nearby entities
-
-Enhancing Messaging
-^^^^^^^^^^^^^^^^^^^
-
-First, we'll add a few methods to enhance the messaging behavior of an entity. Previously, we just
-had two trolls that were automatically put in conversation with each other at the start of the
-game. Now, we need to develop a way for entities to start and end conversations with each other.
-
-Let's write two methods for this purpose: one to start a conversation and one to end it. These
-methods will first do some basic checks to make sure the desired operation is valid. Then they will
-set the ``_inConvoWith`` property according to the desired operation. Last, they will connect or
-disconnect the ``MsgSent`` signals of each entity with the ``ReceiveMsg()`` method of the other
-entity.
+To get started, open up the *ChatEntity.cs* script that we wrote in the :doc:`02.simple_chat_npcs`
+section. The first thing we need to do is to change this script so that it inherits from an
+``Area2D`` node. We'll use the collision detection of an ``Area2D`` to detect when another
+``ChatEntity`` is nearby. (Note: Making the following changes may break the ``ArguingTrolls`` scene
+created in sections :doc:`01.project_setup` and :doc:`02.simple_chat_npcs`.)
 
 .. code-block:: csharp
-
-    // Attempts to start a conversation with another ChatEntity.
-    // Will fail and return false if either ChatEntity is already in a conversation.
-    public virtual bool StartConvo(ChatEntity otherChatEntity)
-    {
-        // Check to make sure neither ChatEntity is already in a conversation
-        if (_inConvoWith != null || otherChatEntity._inConvoWith != null)
-            return false;
-
-        // Put both ChatEntities in conversation mode
-        _inConvoWith = otherChatEntity;
-        otherChatEntity._inConvoWith = this;
-
-        // Connect up the MsgSent signals
-        MsgSent += otherChatEntity.ReceiveMsg;
-        otherChatEntity.MsgSent += ReceiveMsg;
-
-        // Return success
-        return true;
-    }
-
-    // Attempts to end a conversation with another ChatEntity
-    // Will fail and return false if otherChatEntity is not in a conversation with this ChatEntity
-    public virtual bool EndConvo(ChatEntity otherChatEntity)
-    {
-        // Check to make sure both ChatEntities are in conversation with each other
-        if (_inConvoWith != otherChatEntity || otherChatEntity._inConvoWith != this)
-            return false;
-
-        // Take both ChatEntities out of conversation mode
-        _inConvoWith = null;
-        otherChatEntity._inConvoWith = null;
-
-        // Disconnect the MsgSent signals
-        MsgSent -= otherChatEntity.ReceiveMsg;
-        otherChatEntity.MsgSent -= ReceiveMsg;
-
-        // Return success
-        return true;
-    }
-
-Let's also write a simple method that checks whether the ``_inConvoWith`` property is null. This
-will provide a simple (and public) way to check whether the entity is in a conversation at any
-given moment. (We'll use this later to keep the player from moving while in a conversation.)
-
-.. code-block:: csharp
-
-    // Returns true if currently in a conversation, false otherwise
-    public virtual bool InConvo()
-    {
-        return _inConvoWith != null;
-    }
-
-Nearby ChatEntities
-^^^^^^^^^^^^^^^^^^^
-
-Next, we will write some properties and methods to keep track of other nearby entities. This will
-be used to display a list of entities to the player and will allow them to start a conversation
-with the nearest entity. (Note: We won't set up the NPCs to use this feature in *this* project, but
-it could be useful if you want GPT-4 powered NPCs to be able to see and keep track of objects in
-the world around them.)
-
-**List of Nearby Entities**
-
-Let's first set up the list that will hold all of the nearby entities. We'll use a C# list for
-this, so be sure to add the appropriate ``using`` statement.
-
-.. code-block:: csharp
-
-    using Godot;
-    using System.Collections.Generic;  // allows us to use the List class
 
     [GlobalClass]
     public partial class ChatEntity : Area2D
     {
         (...)
-
-        // List of ChatEntities currently in range
-        protected List<ChatEntity> _nearbyChatEntities = new List<ChatEntity>();
-
-        (...)
     }
+
+Nearby ChatEntities
+^^^^^^^^^^^^^^^^^^^
+
+Now that ``ChatEntity`` inherits from ``Area2D``, we can write some properties and methods to keep
+track of other nearby entities. This will be used to display a list of entities to the player and
+will allow them to start a conversation with the nearest entity. (Note: We won't set up the NPCs to
+use this feature in *this* project, but it could be useful if you want GPT-4 powered NPCs to be
+able to see and keep track of objects in the world around them.)
+
+**List of Nearby Entities**
+
+Let's first set up the list that will hold all of the nearby entities.
+
+.. code-block:: csharp
+
+    // List of ChatEntities currently in range
+    protected List<ChatEntity> _nearbyChatEntities = new List<ChatEntity>();
+
+Your code editor may give you an error message for this. That's because we're using a C# list class
+and need to indicate that with the appropriate ``using`` statement.
+
+.. code-block:: csharp
+
+    using Godot;
+    using System.Collections.Generic;  // allows us to use the List class
 
 **The Area2D Signals**
 
@@ -205,15 +147,96 @@ is closest to this entity.
         }
     }
 
-Part 2: Updating ChatAI
------------------------
+Enhancing Messaging
+^^^^^^^^^^^^^^^^^^^
 
-TODO
+Next, we'll add a few methods to enhance the messaging behavior of an entity. Previously, we just
+had two trolls that were automatically put in conversation with each other at the start of the
+game. Now, we need to develop a way for entities to start and end conversations with each other.
+
+Let's write two methods for this purpose: one to start a conversation and one to end it. These
+methods will first do some basic checks to make sure the desired operation is valid. Then they will
+set the ``_inConvoWith`` property according to the desired operation. Last, they will connect or
+disconnect the ``MsgSent`` signals of each entity with the ``ReceiveMsg()`` method of the other
+entity.
+
+.. code-block:: csharp
+
+    // Attempts to start a conversation with another ChatEntity.
+    // Will fail and return false if either ChatEntity is already in a conversation.
+    public virtual bool StartConvo(ChatEntity otherChatEntity)
+    {
+        // Check to make sure neither ChatEntity is already in a conversation
+        if (_inConvoWith != null || otherChatEntity._inConvoWith != null)
+            return false;
+
+        // Put both ChatEntities in conversation mode
+        _inConvoWith = otherChatEntity;
+        otherChatEntity._inConvoWith = this;
+
+        // Connect up the MsgSent signals
+        MsgSent += otherChatEntity.ReceiveMsg;
+        otherChatEntity.MsgSent += ReceiveMsg;
+
+        // Return success
+        return true;
+    }
+
+    // Attempts to end a conversation with another ChatEntity
+    // Will fail and return false if otherChatEntity is not in a conversation with this ChatEntity
+    public virtual bool EndConvo(ChatEntity otherChatEntity)
+    {
+        // Check to make sure both ChatEntities are in conversation with each other
+        if (_inConvoWith != otherChatEntity || otherChatEntity._inConvoWith != this)
+            return false;
+
+        // Take both ChatEntities out of conversation mode
+        _inConvoWith = null;
+        otherChatEntity._inConvoWith = null;
+
+        // Disconnect the MsgSent signals
+        MsgSent -= otherChatEntity.ReceiveMsg;
+        otherChatEntity.MsgSent -= ReceiveMsg;
+
+        // Return success
+        return true;
+    }
+
+Let's also write a simple method that checks whether the ``_inConvoWith`` property is null. This
+will provide a simple (and public) way to check whether the entity is in a conversation at any
+given moment. (We'll use this later to keep the player from moving while in a conversation.)
+
+.. code-block:: csharp
+
+    // Returns true if currently in a conversation, false otherwise
+    public virtual bool InConvo()
+    {
+        return _inConvoWith != null;
+    }
+
+Part 2: ChatAI
+--------------
+
+With ``ChatEntity`` updated, we can now take a look at ``ChatAI``.
 
 Updating the Script
 ^^^^^^^^^^^^^^^^^^^
 
-TODO
+There is only one thing that we need to add to the ``ChatAI`` script. We've already written out all
+the methods for connecting to Semantic-Kernel and the methods for receiving and sending messages.
+However, now that our NPCs are going to find themselves in a more developed game world, it would be
+appropriate to have some way to allow them to see what's going on around them. To this end, we'll
+add a ``Notify`` method. This method will send a message to Semantic-Kernel and not prompt for any
+sort of reply.
+
+.. code-block:: csharp
+
+    // Notifies semantic kernel agent about some event or other important piece of information
+    public void Notify(string message)
+    {
+        GD.Print($"NOTIFY: {message}");
+        _chat.AddUserMessage(message);
+    }
 
 Attaching to Gralk
 ^^^^^^^^^^^^^^^^^^
