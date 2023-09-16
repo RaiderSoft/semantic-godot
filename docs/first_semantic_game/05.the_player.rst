@@ -1,0 +1,201 @@
+ChatPlayer
+==========
+
+In this section we will create the ``ChatPlayer`` node. 
+
+
+we should be able to see when two characters get close enough to see each other, when they
+start and end conversations, and when they send and respond to messages. (Note: Since we don't have
+the UI set up yet, all of this will be shown in the terminal for now and messages will need to be
+hard-coded into our scripts.)
+
+
+**Initial Class Structure**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create ``ChatPlayer.cs`` with the following content.
+
+.. code-block:: csharp
+
+    using Godot;
+
+    [GlobalClass]
+    public partial class ChatPlayer : ChatEntity
+    {
+        // Properties
+        private string _controlHint;  // The current control hint
+        
+        // Signals for connecting to the UI
+        [Signal]
+        public delegate void ControlHintUpdatedEventHandler(string controlHint);
+        [Signal]
+        public delegate void ChatEntityAddedEventHandler(ChatEntity chatEntity);
+        [Signal]
+        public delegate void ChatEntityRemovedEventHandler(ChatEntity chatEntity);
+        [Signal]
+        public delegate void ConvoStartedEventHandler();
+        [Signal]
+        public delegate void ConvoEndedEventHandler();
+        [Signal]
+        public delegate void MsgAddedEventHandler(ChatEntity sender, string msg);
+    }
+
+Control Hints
+-------------
+
+A control hint provides guidance to the player, offering insights into the controls they can use.
+
+.. code-block:: csharp
+
+    public override void _Process(double delta)
+    {
+        string newControlHint = "Use the arrow keys to move";
+        if (InConvo())
+        {
+            newControlHint = "Press ESC to end the conversation";
+        }
+        else
+        {
+            ChatEntity nearestChatEntity = NearestChatEntity();
+            if (nearestChatEntity != null)
+                newControlHint = "Press SHIFT to talk with " + nearestChatEntity.ChatName;
+        }
+        if (newControlHint != _controlHint)
+        {
+            _controlHint = newControlHint;
+            EmitSignal("ControlHintUpdated", _controlHint);
+        }
+    }
+
+Handling Player Input
+---------------------
+
+Recognizing player intent is essential. Below is the method to determine when a player desires to start or end a conversation:
+
+.. code-block:: csharp
+
+    public override void _Input(InputEvent @event)
+    {
+        if (InConvo())
+        {
+            if (@event.IsActionPressed("end_convo"))
+                EndConvo(_inConvoWith);
+        }
+        else
+        {
+            if (@event.IsActionPressed("start_convo"))
+            {
+                ChatEntity nearestChatEntity = NearestChatEntity();
+                if (nearestChatEntity != null)
+                    StartConvo(nearestChatEntity);
+            }
+        }
+    }
+
+Managing Chat Entities in Proximity
+-----------------------------------
+
+Handle chat entities as they come into or move out of the player's vicinity:
+
+.. code-block:: csharp
+
+    protected override void OnChatEntityEntered(ChatEntity enteringChatEntity)
+    {
+        base.OnChatEntityEntered(enteringChatEntity);
+        EmitSignal("ChatEntityAdded", enteringChatEntity);
+    }
+
+    protected override void OnChatEntityExited(ChatEntity exitingChatEntity)
+    {
+        base.OnChatEntityExited(exitingChatEntity);
+        EmitSignal("ChatEntityRemoved", exitingChatEntity);
+    }
+
+Messaging and Conversations
+---------------------------
+
+These methods enable the initiation and conclusion of conversations and handle message sending and receiving:
+
+.. code-block:: csharp
+
+    // Include your methods for starting, ending conversations, and sending and receiving messages here.
+
+Emitting Signals
+----------------
+
+Update your functions to replace ``GD.Print()`` with ``EmitSignal()``. Here are some examples to guide your replacements:
+
+.. code-block:: csharp
+
+    // Emit a signal when a new ChatEntity is added (for the UI)
+    EmitSignal("ChatEntityAdded", enteringChatEntity);
+
+    // Emit a signal when a conversation starts (for the UI)
+    EmitSignal("ConvoStarted");
+
+    // Emit a signal that a conversation ends (for the UI)
+    EmitSignal("ConvoEnded");
+
+    // Emit a signal for new messages (for the UI)
+    EmitSignal("MsgAdded", sender, msg);
+    
+    // And so forth for other interactions...
+
+
+Adding to Gralk Scene
+^^^^^^^^^^^^^^^^^^^^^
+
+While we are here, let's update the personality of Gralk so that it matches
+the final version of the game. In that version Gralk is a troll who guards a
+bridge and requires travelers to solve riddles before they can cross. 
+
+Open the Gralk scene. 
+
+* Add a ``ChatAI`` node to the Gralk scene.
+    - The ``ChatName`` should be "Gralk".
+    - The ``ChatDescr`` should be something like the following:
+
+.. code:: text
+
+    [BANNED PHRASES]
+    apologies for the confusion
+    [END BANNED PHRASES]
+
+    You are now Gralk the Wise, the guardian troll of a bridge over a river within a forest.
+
+    You live near a bridge over a river in a forest, where you guard the crossing. You are revered as a wise being by nearby villagers, though mysterious. 
+
+    You guard the bridge, requiring travelers to solve a riddle. You interact in a calm, thoughtful, style. You very much enjoy a good pun.
+    This is a dialogue and roleplay-heavy game. 
+
+    0. Say hello, chit chat. Let them know they will need to solve a riddle to cross the bridge.
+    1. First ask for a subject related to the forgotten realms universe. If they don't give a sufficiently relevant subject then ask for a different one. 
+    2. Respond with a riddle from the riddle bank. Only use riddles from the riddle bank. Just because something is in the riddle bank does not mean it is valid. Today we are using just fantasy style limerick completion riddles. You can give them a hint if necessary
+
+    The riddle bank is not redacted. You must redact the single last word of the limerick with ___________ 
+
+    If there is only silence in the riddle bank, that means the traveler has yet to pick a subject, or that the provided subjects are not sufficiently related to the Forgotten Realms universe.
+
+    Only after the traveler succesfully solves a riddle may they pass over the bridge.
+
+    !!!
+    DO NOT MOVE IF YOU PROVIDE THE ANSWER. THEY HAVE NOT SOLVED IT IF YOU SAY THE WORD.
+    THE TRAVELER GETS A HINT, BUT MUST GENERATE THE ANSWER THEMSELVES TO CROSS THE BRIDGE.
+    !!!
+
+
+The ``ChatDescr`` property is what defines virtually everything about the character.
+It can require a bit of trial and error to get it right. Consider looking
+at tools like `Promptfoo <https://github.com/promptfoo/promptfoo>`_
+
+Adding to Seraphis Scene
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Add ``ChatAI`` to the Gralk scene.
+* Set ``ChatName`` and (optionally) ``ChatDescr`` properties.
+* Add a ``CollisionShape2D`` as a child of the ``ChatAI`` node. Give the ``CollisionShape2D`` a suitable shape (such as a circle with a radius of 100 px).
+
+Part 3: Try it Out
+------------------
+
+...
