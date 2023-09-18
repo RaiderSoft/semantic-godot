@@ -11,7 +11,7 @@ the end of this section, we should be able to do the following from the user int
 * Start and end a conversation with a nearby ``ChatEntity``.
 * Write, send, and receive messages while in a conversation.
 
-Part 2: The User Interface Scene
+Part 1: The User Interface Scene
 --------------------------------
 
 Now that we have updated the ``ChatPlayer`` script, we can move on to creating the UI and
@@ -44,7 +44,8 @@ update it when necessary.
 
 Add a C# script to the UserInterface node. Save the script as "UserInterface.cs".
 
-**Properties**
+Properties
+""""""""""
 
 First, we'll add a property that will reference the ``ChatPlayer`` node attached to the
 *seraphis.tscn* scene. We won't worry about setting it from inside the UI script and will instead
@@ -87,7 +88,8 @@ the bottom so that the newest messages are always visible.
     // Flag for when a message has been added to the message box and so we need to scroll to end
     private bool _msgBoxHasNewMsg = false;
 
-**Methods**
+Methods
+"""""""
 
 Now on to methods. First we'll override the node's ``_Ready()`` method. In this method, we'll
 assign nodes to the properties declared earlier and we'll connect up a method to handle what
@@ -246,7 +248,7 @@ message.
         _justAddedNewMsg = true;
     }
 
-Part 3: The Main Scene
+Part 2: The Main Scene
 ----------------------
 
 Now we will create the main scene that will bring the level and the UI together.
