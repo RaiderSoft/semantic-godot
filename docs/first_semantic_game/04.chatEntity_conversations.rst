@@ -36,13 +36,14 @@ Now that ``ChatEntity`` inherits from ``Area2D``, we can write some properties a
 track of other nearby entities. This will be used to display a list of entities to the player and
 will allow them to start a conversation with the nearest entity.
 
-.. note::
+.. tip::
 
     We won't set up the NPCs to use this feature in *this* project, but it could be useful if, for
     example, you want GPT-4 powered NPCs to be able to see and keep track of objects in the world
     around them.
 
-**List of Nearby Entities**
+List of Nearby Entities
+"""""""""""""""""""""""
 
 Let's first set up the list that will hold all of the nearby entities.
 
@@ -51,15 +52,16 @@ Let's first set up the list that will hold all of the nearby entities.
     // List of ChatEntities currently in range
     protected List<ChatEntity> _nearbyChatEntities = new List<ChatEntity>();
 
-Your code editor may give you an error message for this. That's because we're using a C# list class
-and need to indicate that with the appropriate ``using`` statement.
+Your code editor will probably give you an error message for this. That's because we're using a C#
+list class and need to indicate that with the appropriate ``using`` statement at the top of the
+script.
 
 .. code-block:: csharp
 
-    using Godot;
-    using System.Collections.Generic;  // allows us to use the List class
+    using System.Collections.Generic;
 
-**The Area2D Signals**
+The Area2D Signals
+""""""""""""""""""
 
 Now, we want to write a few methods to define what should happen when another entity enters the
 vicinity of this entity. Since ``ChatEntity`` extends Godot's built-in ``Area2D`` node, we can
@@ -101,7 +103,8 @@ additional methods ``OnChatEntityEntered()`` and ``OnChatEntityExited()`` if the
             OnChatEntityExited(exitingChatEntity);
     }
 
-**Other Methods**
+Other Methods
+"""""""""""""
 
 Now we can write the ``OnChatEntityEntered()`` and ``OnChatEntityExited()`` methods. For right now
 these methods will simply add/remove entities from the ``_nearbyChatEntities`` list. However, we
@@ -233,9 +236,9 @@ Updating the Script
 There is only one thing that we need to add to the ``ChatAI`` script. We've already written out all
 the methods for connecting to Semantic-Kernel and the methods for receiving and sending messages.
 However, now that our NPCs are going to find themselves in a more developed game world, it would be
-appropriate to have some way to allow them to be aware of what's going on around them. To this end,
-we'll add a ``Notify`` method. This method will send a message to Semantic-Kernel and not prompt
-for any sort of reply.
+appropriate to have some way to inform them about what's going on around them. To this end, we'll
+add a ``Notify()`` method. This method will send a message to Semantic-Kernel and not prompt for
+any sort of reply.
 
 .. code-block:: csharp
 
@@ -256,10 +259,10 @@ of the ``Gralk`` node.
 .. note::
 
     Since we used the ``[GlobalClass]`` attribute on the ``ChatAI`` script, it should show up as an
-    option in the "Create New Node" dialogue box. If it is not showing up, you may have to rebuild
-    the project first. You can do this by clicking the "Build" button in the top-right corner of
-    the screen. For more information about Godot's global classes, see
-    https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html .
+    option in the "Create New Node" dialogue box. If it is *not* showing up, you may have to
+    rebuild the project first. You can do this by clicking the "Build" button in the top-right
+    corner of the screen. For more information about Godot's global classes, see
+    https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html.
 
 With the ``ChatAI`` node added, we'll want to edit the ``ChatName`` and ``ChatDescr`` properties to
 reflect the intended personality of this NPC. Set ``ChatName`` to "Gralk" and set ``ChatDescr`` to
@@ -303,9 +306,9 @@ For the ``CircleShape2D``, set the following property:
 
 * CircleShape2D > Radius = 75px
 
-.. note::
+.. tip::
 
-    You can change the shape to something that seems appropriate to you. But remember that the
+    You can change the shape to anything that seems appropriate to you. But remember that the
     ``ChatAI`` node won't be able to "see" anything until it enters the collision shape, so make
     sure that the shape extends some distance beyond the borders of the sprite.
 
