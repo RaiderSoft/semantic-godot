@@ -340,3 +340,8 @@ control hint message that changes based on the situation, you should see Gralk s
 "Nearby Entities" section, and you should be able to press SHIFT to start a conversation and ESC to
 end a conversation with Gralk. Finally, you should be able to send messages to and receive messages
 from Gralk via the UI.
+
+.. image:: gameplay.gif
+   :alt: Gameplay Example
+   :width: 960px
+   :align: center
