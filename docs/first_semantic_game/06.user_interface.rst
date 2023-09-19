@@ -322,3 +322,21 @@ the ``MyChatPlayer`` property of the UI to point to the ``ChatPlayer`` node that
         UserInterface userInterface = GetNode<UserInterface>("MarginContainer/UserInterface");
         userInterface.MyChatPlayer = chatPlayer;
     }
+
+Try It Out
+^^^^^^^^^^
+
+The main scene should now be ready to run! Press ``F5`` (or the "Run Project" button). When the
+dialogue box asks you to select a main scene, click the "Select Current" button to select the
+*main.tscn* scene.
+
+.. note::
+
+    You can also change the main scene in the project settings under Application > Run > Main
+    Scene.
+
+Confirm that you can still move Seraphis around as before. You should now also be able to see a
+control hint message that changes based on the situation, you should see Gralk show up on the
+"Nearby Entities" section, and you should be able to press SHIFT to start a conversation and ESC to
+end a conversation with Gralk. Finally, you should be able to send messages to and receive messages
+from Gralk via the UI.
