@@ -26,8 +26,9 @@ section. The first thing we need to do is to change this script so that it inher
 
 .. note::
 
-    Changing ``ChatEntity`` to inherit from ``Area2D`` may break the ``ArguingTrolls`` scene
-    created in sections :doc:`01.project_setup` and :doc:`02.simple_chat_npcs`.
+    Changing ``ChatEntity`` to inherit from ``Area2D`` will break the ``ArguingTrolls`` scene
+    created in sections :doc:`01.project_setup` and :doc:`02.simple_chat_npcs`. This is expected.
+    You may delete the ``ArguingTrolls`` scene at this point.
 
 Nearby ChatEntities
 ^^^^^^^^^^^^^^^^^^^
@@ -38,9 +39,7 @@ will allow them to start a conversation with the nearest entity.
 
 .. tip::
 
-    We won't set up the NPCs to use this feature in *this* project, but it could be useful if, for
-    example, you want GPT-4 powered NPCs to be able to see and keep track of objects in the world
-    around them.
+    Another use of the nearby entity list might be to give AI-powered NPCs the ability to see and keep track of objects in the world around them.
 
 List of Nearby Entities
 """""""""""""""""""""""
