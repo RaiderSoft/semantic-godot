@@ -1,19 +1,28 @@
-ChatPlayer
+The Player
 ==========
 
 In this section we will create the ``ChatPlayer`` node, which will be another extension of
 ``ChatEntity``. This node will be attached to the player character and will allow it to interact
 with the ChatAI nodes. It will be controlled by keyboard and UI input from the player. By the end
 of this section, we should be able to see when the player gets close enough to "see" Gralk, when
-they start and end conversations, and when they send and respond to messages. (Note: Since we don't
-have the UI set up yet, all of this will be shown in the terminal for now and messages will need to
-be hard-coded into our scripts. We'll create the UI in the next section.)
+they start and end conversations, and when they send and respond to messages.
+
+.. note::
+
+    Since we don't have the UI set up yet, all of this will be shown in the output terminal for now
+    and messages will need to be hard-coded into our scripts. After we create the UI in the next
+    section, everything will be visible in the game screen.
 
 Part 1: Writing the ChatPlayer Script
 -------------------------------------
 
-* Create ``ChatPlayer.cs``.
-* Make it a GlobalClass.
+To start, we'll write the ``ChatPlayer`` script, which will be an extension of ``ChatEntity`` that
+defines how players will interact with AI-powered NPCs. Right-click the filesystem dock and select
+"New Script...". Make sure the language is set to C# and it inherits from ``ChatEntity``. Save it
+as *ChatPlayer.cs*.
+
+Once the script is created, open it up and add the ``[GlobalClass]`` attribute above the class
+declaration.
 
 .. code-block:: csharp
 
@@ -28,14 +37,17 @@ Part 1: Writing the ChatPlayer Script
 Properties
 ^^^^^^^^^^
 
-* The current control hint.
+Now that the ``ChatPlayer`` class is set up, we can add a few properties to it. First, add a
+``_controlHint`` property. This will hold a message that will be displayed to the player to
+indicate what kinds of inputs and actions they can do at any given moment.
 
 .. code-block:: csharp
 
-    // Properties
-    private string _controlHint;  // The current control hint
+    // The current control hint
+    private string _controlHint;
 
-* Signals to connect to the UI.
+Next, add a few signals. We'll set up these signals to be emitted whenever ``ChatPlayer`` does
+anything that we might want the UI to be aware of.
 
 .. code-block:: csharp
 
@@ -53,16 +65,29 @@ Properties
     [Signal]
     public delegate void MsgAddedEventHandler(ChatEntity sender, string msg);
 
+.. note::
+
+    Our use of signals here follows the "call down, signal up" convention. Although the UI will not
+    technically be the parent or ancestor of ``ChatPlayer``, it will exist somewhat higher up in
+    the scene tree. Additionally, it wouldn't ever really make sense to use the UI where there is
+    no ``ChatPlayer`` node, but it could make sense to use the ``ChatPlayer`` node in a situation
+    where there is no UI. Using signals here makes it so that the UI doesn't have to exist in order
+    for ``ChatPlayer`` to function properly.
+
 Control Hint Methods
 ^^^^^^^^^^^^^^^^^^^^
 
-* ``_Process()`` method keeps constant watch on current circumstances and updates control hint
-  accordingly.
+The first method to add in the ``ChatPlayer`` script is the ``_Process()`` method, which we'll use
+to keep the control hint updated. Each frame, we'll evaluate the current game situation and
+determine whether we need to update the control hint. If we do update it, we'll also emit a signal
+indicating that.
 
 .. code-block:: csharp
 
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
+        // Figure out what the control hint should be for this frame
         string newControlHint = "Use the arrow keys to move";
         if (InConvo())
         {
@@ -74,6 +99,7 @@ Control Hint Methods
             if (nearestChatEntity != null)
                 newControlHint = "Press SHIFT to talk with " + nearestChatEntity.ChatName;
         }
+        // If the control hint should be different, update it
         if (newControlHint != _controlHint)
         {
             _controlHint = newControlHint;
@@ -82,9 +108,19 @@ Control Hint Methods
         }
     }
 
+.. note::
+
+    We've added a ``GD.Print()`` statement to this method so that we can see in the output terminal
+    when the control hint changes. The other methods we'll write for ``ChatPlayer`` will have
+    similar print statements. This is a temporary solution until we complete the UI in the next
+    section.
+
 Conversation Methods
 ^^^^^^^^^^^^^^^^^^^^
 
+The next few methods we'll write will control starting and ending conversations.
+
+* Add ``start_convo`` and ``end_convo`` actions to the input map.
 * ``_Input()`` method used to listen to player input SHIFT and ESC. Starts or ends a conversation
   accordingly.
 
@@ -109,6 +145,7 @@ Conversation Methods
     }
 
 * ``StartConvo()`` and ``EndConvo()`` start and end conversations.
+* They override the ``ChatEntity`` methods.
 
 .. code-block:: csharp
 
@@ -152,28 +189,6 @@ Conversation Methods
         return true;
     }
 
-Nearby ChatEntity Methods
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* ``OnChatEntityEntered()`` and ``OnChatEntityExited()`` track chat entities as they come into or
-  move out of the player's vicinity.
-
-.. code-block:: csharp
-
-    protected override void OnChatEntityEntered(ChatEntity enteringChatEntity)
-    {
-        base.OnChatEntityEntered(enteringChatEntity);
-        GD.Print(enteringChatEntity + " has entered your vicinity");
-        EmitSignal("ChatEntityAdded", enteringChatEntity);
-    }
-
-    protected override void OnChatEntityExited(ChatEntity exitingChatEntity)
-    {
-        base.OnChatEntityExited(exitingChatEntity);
-        GD.Print(exitingChatEntity + " has exited your vicinity");
-        EmitSignal("ChatEntityRemoved", exitingChatEntity);
-    }
-
 Messaging Methods
 ^^^^^^^^^^^^^^^^^
 
@@ -198,6 +213,28 @@ Messaging Methods
     {
         // Emit a signal that there is a new message (for UI)
         EmitSignal(SignalName.MsgAdded, _inConvoWith, msg);
+    }
+
+Nearby ChatEntity Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``OnChatEntityEntered()`` and ``OnChatEntityExited()`` track chat entities as they come into or
+  move out of the player's vicinity.
+
+.. code-block:: csharp
+
+    protected override void OnChatEntityEntered(ChatEntity enteringChatEntity)
+    {
+        base.OnChatEntityEntered(enteringChatEntity);
+        GD.Print(enteringChatEntity + " has entered your vicinity");
+        EmitSignal("ChatEntityAdded", enteringChatEntity);
+    }
+
+    protected override void OnChatEntityExited(ChatEntity exitingChatEntity)
+    {
+        base.OnChatEntityExited(exitingChatEntity);
+        GD.Print(exitingChatEntity + " has exited your vicinity");
+        EmitSignal("ChatEntityRemoved", exitingChatEntity);
     }
 
 Part 2: Using the ChatPlayer Node
