@@ -265,7 +265,7 @@ of the ``Gralk`` node.
 
 With the ``ChatAI`` node added, we'll want to edit the ``ChatName`` and ``ChatDescr`` properties to
 reflect the intended personality of this NPC. Set ``ChatName`` to "Gralk" and set ``ChatDescr`` to
-the following text:
+something like the following text:
 
 .. code-block:: text
 
@@ -294,6 +294,10 @@ the following text:
     DO NOT MOVE IF YOU PROVIDE THE ANSWER. THEY HAVE NOT SOLVED IT IF YOU SAY THE WORD.
     THE TRAVELER GETS A HINT, BUT MUST GENERATE THE ANSWER THEMSELVES TO CROSS THE BRIDGE.
     !!!
+
+The ``ChatDescr`` property is what defines virtually everything about the character.
+It can require a bit of trial and error to get it right. Consider looking
+at tools like `Promptfoo <https://github.com/promptfoo/promptfoo>`_.
 
 Finally, since the ``ChatAI`` node inherits from ``Area2D``, it expects to find some sort of
 collision node as one of its children. Let's add a ``CollisionShape2D`` as a child of the
