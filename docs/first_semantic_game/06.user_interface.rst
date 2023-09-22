@@ -89,8 +89,8 @@ the bottom so that the newest messages are always visible.
     // Flag for when a message has been added to the message box and so we need to scroll to end
     private bool _msgBoxHasNewMsg = false;
 
-Initiating Methods
-""""""""""""""""""
+Methods for Initialization
+""""""""""""""""""""""""""
 
 Now on to methods. First we'll override the node's ``_Ready()`` method. In this method, we'll
 assign nodes to the properties declared earlier and we'll connect up a method to handle what
@@ -136,8 +136,8 @@ this script.
     that we can be sure ``ChatPlayer`` has been loaded in the scene and ``MyChatPlayer`` has been
     set to reference it before we try to access it.
 
-Updating Methods
-""""""""""""""""
+Methods for Updating
+""""""""""""""""""""
 
 Next, we'll override the node's ``_Process()`` method. In this method, if a new message has just
 arrived, we'll make sure the ScrollContainer is scrolled all the way to the bottom.
