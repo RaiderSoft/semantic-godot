@@ -43,7 +43,7 @@ Now, we'll add the main script for interacting with the UI. It will be attached 
 of the scene (``UserInterface``) and will listen for signals from the ``ChatPlayer`` node and
 update it when necessary.
 
-Add a C# script to the UserInterface node. Save the script as "UserInterface.cs".
+Add a C# script to the UserInterface node. Save the script as *UserInterface.cs*.
 
 Properties
 """"""""""
@@ -290,7 +290,7 @@ Also set the following properties on the ``MarginContainer`` so that the UI will
 right 20% of the screen by default:
 
 * Control > Layout > Container Sizing > Horizontal = Expand (checked)
-* Control > Layout > Container Sizing > Stretch Ratio = 4
+* Control > Layout > Container Sizing > Stretch Ratio = 1
 
 Finally, we can add the level and UI scenes. Instantiate ``level.tscn`` as a child of the
 ``SubViewport``, and instantiate ``user_interface.tscn`` as a child of the ``MarginContainer``. The
@@ -309,8 +309,8 @@ Rather than having the UI script set that property itself, we'll have our ``Main
 
 Add a C# script to the ``Main`` node. Save the script as *Main.cs*. In this script, we'll just need
 to override the ``_Ready()`` method with the following code. This code searches in the
-``SubViewport`` for a ``ChatPlayer`` node called "ChatPlayer". It then gets the UI node and sets
-the ``MyChatPlayer`` property of the UI to point to the ``ChatPlayer`` node that was found.
+``SubViewport`` for a node called ``ChatPlayer`` . It then gets the UI node and sets the
+``MyChatPlayer`` property of the UI to point to the ``ChatPlayer`` node that was found.
 
 .. code-block:: csharp
 
@@ -326,11 +326,11 @@ the ``MyChatPlayer`` property of the UI to point to the ``ChatPlayer`` node that
 Try It Out
 ^^^^^^^^^^
 
-The main scene should now be ready to run! Press ``F5`` (or the "Run Project" button). When the
+The main scene should now be ready to run! Press F5 (or the "Run Project" button). When the
 dialogue box asks you to select a main scene, click the "Select Current" button to select the
 *main.tscn* scene.
 
-.. note::
+.. tip::
 
     You can also change the main scene in the project settings under Application > Run > Main
     Scene.
