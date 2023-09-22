@@ -1,0 +1,115 @@
+[gd_scene load_steps=8 format=3 uid="uid://c00v2vjgr5fr5"]
+
+[ext_resource type="Texture2D" uid="uid://u6biv3hiebe" path="res://forest_bridge.jpg" id="1_rp5jl"]
+[ext_resource type="Script" path="res://ChatAI.cs" id="2_vjleg"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vdwh5"]
+radius = 96.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rgq6o"]
+size = Vector2(5100, 150)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cv7wf"]
+size = Vector2(5100, 150)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sglur"]
+size = Vector2(150, 3000)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ed3xp"]
+size = Vector2(150, 3000)
+
+[node name="Map" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_rp5jl")
+
+[node name="TreasureChest" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="TreasureChest"]
+position = Vector2(401.333, -844)
+polygon = PackedVector2Array(-64, 30.6667, 10.6667, -68, 64, -29.3333, -12, 70.6667)
+
+[node name="ChatAI" type="Area2D" parent="TreasureChest"]
+script = ExtResource("2_vjleg")
+ChatName = "Treasure Chest"
+ChatDescr = "You are an inanimate object with arcane properties. You are a treasure chest. You are not locked. You hold one hundred pieces of gold. Whenever you interact with someone you tell them what you have and that they have completed the game."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TreasureChest/ChatAI"]
+position = Vector2(401.333, -841.333)
+shape = SubResource("CircleShape2D_vdwh5")
+
+[node name="MapEdge" type="StaticBody2D" parent="."]
+
+[node name="NorthEdge" type="CollisionShape2D" parent="MapEdge"]
+position = Vector2(0, -1425)
+shape = SubResource("RectangleShape2D_rgq6o")
+
+[node name="SouthEdge" type="CollisionShape2D" parent="MapEdge"]
+position = Vector2(0, 1425)
+shape = SubResource("RectangleShape2D_cv7wf")
+
+[node name="WestEdge" type="CollisionShape2D" parent="MapEdge"]
+position = Vector2(-2475, 0)
+shape = SubResource("RectangleShape2D_sglur")
+
+[node name="EastEdge" type="CollisionShape2D" parent="MapEdge"]
+position = Vector2(2475, 0)
+shape = SubResource("RectangleShape2D_ed3xp")
+
+[node name="River" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="River"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(184.533, -261.333, 101.333, -343.467, 24.5333, -460.8, -16, -537.6, -33.0667, -676.267, -66.1333, -781.867, -61.8667, -926.933, -2.13333, -1107.2, 70.4, -1262.93, 117.76, -1363.94, 209.76, -1507.94, 260.427, -1551.94, 84.4268, -1557.28, 0.426758, -1418.61, -52.2667, -1284.27, -102.4, -1164.8, -138.667, -1090.13, -157.867, -989.867, -164.907, -809.276, -131.573, -699.942, -106.24, -615.942, -71.4667, -544, -2.13333, -424.533, 76.8, -307.2, 155.733, -220.8, 224.427, -101.276, 381.76, 66.7244, 521.76, 298.724, 633.76, 298.724, 569.76, 178.724, 481.76, 45.391, 313.76, -134.609)
+
+[node name="CollisionPolygon2D5" type="CollisionPolygon2D" parent="River"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(676.427, -338.609, 688, -286.933, 716.8, -248.533, 764.8, -188.8, 852.427, -109.276, 921.76, -47.9423, 967.467, 21.3333, 1019.09, 101.391, 1075.2, 201.6, 1124.43, 261.391, 1124.27, 295.467, 1019.73, 298.667, 1004.43, 236.058, 943.093, 138.724, 905.76, 66.7244, 853.76, -11.9423, 816.427, -39.9423, 739.093, -125.276, 684.427, -234.609, 648.427, -306.609, 583.093, -367.942, 537.76, -423.942, 493.76, -527.942, 407.093, -658.609, 396.427, -749.276, 371.093, -890.609, 371.093, -971.942, 476.427, -1157.28, 528.427, -1227.94, 528.427, -1293.28, 533.76, -1354.61, 556.427, -1411.94, 587.093, -1463.94, 612.427, -1502.61, 651.093, -1511.94, 679.093, -1555.94, 731.093, -1557.28, 699.093, -1525.28, 665.76, -1483.94, 615.093, -1463.94, 588.427, -1418.61, 556.427, -1349.28, 548.427, -1271.94, 541.76, -1201.28, 580.427, -1179.94, 633.76, -1134.61, 647.093, -1089.28, 640.427, -1038.61, 620.427, -995.942, 572.427, -945.276, 557.76, -901.276, 565.76, -790.609, 556.427, -747.942, 581.76, -715.942, 623.093, -693.276, 708.427, -686.609, 748.427, -673.276, 764.427, -618.609, 763.093, -571.942, 792.427, -497.276, 800.427, -449.276, 781.76, -417.276, 731.093, -370.609)
+
+[node name="CollisionPolygon2D7" type="CollisionPolygon2D" parent="River"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(528.427, 440.058, 646.4, 441.6, 647.467, 546.133, 621.76, 670.724, 583.093, 782.724, 527.093, 890.724, 472.427, 996.058, 347.093, 1105.39, 331.093, 1146.72, 272.427, 1146.72, 309.76, 1077.39, 375.093, 981.391, 415.093, 850.724, 463.093, 729.391, 507.093, 588.058)
+
+[node name="CollisionPolygon2D8" type="CollisionPolygon2D" parent="River"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(1015.09, 442.724, 1157.33, 441.6, 1138.13, 522.667, 1128.53, 620.8, 1049.76, 758.724, 1049.6, 845.867, 1056.43, 926.724, 1112.43, 1001.39, 1229.76, 1056.06, 1284.43, 1144.06, 1151.09, 1144.06, 1127.09, 1085.39, 1063.09, 1056.06, 1016.43, 1000.06, 983.093, 910.724, 999.093, 741.391, 1027.09, 598.724)
+
+[node name="Bridge" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="Bridge"]
+position = Vector2(-537.76, 28.2097)
+polygon = PackedVector2Array(398.933, 473.6, 833.067, 476.8, 1272.53, 473.6, 1272.53, 489.6, 834.133, 490.666, 400, 489.6)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Bridge"]
+position = Vector2(-502.56, 203.142)
+polygon = PackedVector2Array(364.8, 433.067, 797.867, 425.6, 1235.2, 429.867, 1236.27, 446.933, 797.867, 441.6, 366.933, 448)
+
+[node name="RocksAndTrees" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="RocksAndTrees"]
+position = Vector2(-500.427, 203.142)
+polygon = PackedVector2Array(-1945.6, -640, -1715.2, -521.6, -1545.6, -413.867, -1379.2, -378.667, -1022.57, -433.142, -865.573, -513.142, -902.573, -663.142, -935.573, -755.142, -786.573, -977.142, -841.573, -1107.14, -914.573, -1270.14, -942.573, -1372.14, -939.573, -1469.14, -993.573, -1563.14, -1050.57, -1702.14, -1171.57, -1705.14, -1296.57, -1668.14, -1371.57, -1608.14, -1597.57, -1663.14, -1664.57, -1561.14, -1903.57, -1561.14, -1911.57, -1068.14, -2026.57, -932.142, -2053.57, -756.142)
+
+[node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="RocksAndTrees"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(-1840.57, -6.27563, -1639.57, 124.724, -1460.57, 159.724, -1252.57, 84.7244, -1012.57, 101.724, -939.573, 0.724365, -821.573, -53.2756, -689.573, 55.7244, -677.573, 145.724, -714.573, 273.724, -727.467, 366.933, -687.573, 491.724, -707.573, 633.724, -774.573, 671.724, -911.573, 643.724, -1047.57, 661.724, -1156.57, 730.724, -1267.2, 933.333, -1461.57, 901.724, -1516.57, 1017.72, -1543.57, 1141.72, -1609.57, 1212.72, -1856.57, 1200.72, -1921.57, 1099.72, -2006.57, 890.724, -2030.57, 516.724, -2046.93, 325.333, -2038.57, 130.724)
+
+[node name="CollisionPolygon2D3" type="CollisionPolygon2D" parent="RocksAndTrees"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(193.76, 533.391, 149.76, 529.391, 81.7601, 552.058, 75.0934, 580.058, 52.4268, 598.724, 52.4268, 630.724, 28.4268, 672.058, 35.0934, 726.724, 63.0934, 769.391, 104.427, 784.058, 148.427, 796.058, 187.093, 766.724, 212.427, 734.724, 235.093, 725.391, 252.427, 686.724, 268.427, 665.391, 271.093, 610.724, 253.76, 570.724)
+
+[node name="CollisionPolygon2D4" type="CollisionPolygon2D" parent="RocksAndTrees"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(-169.6, 1290.67, -276.267, 1309.87, -329.6, 1268.27, -378.667, 1214.93, -394.667, 1180.8, -402.133, 1115.73, -402.133, 1013.33, -394.667, 921.6, -368, 850.133, -310.4, 804.267, -257.067, 785.067, -234.667, 819.2, -222.933, 826.667, -196.267, 826.667, -173.867, 830.933, -21.3333, 891.733, -6.4, 884.267, 23.4667, 902.4, 46.9333, 960, 57.6, 1059.2, 69.3333, 1130.67, 20.2667, 1172.27, -71.4667, 1264, -120.533, 1283.2)
+
+[node name="CollisionPolygon2D5" type="CollisionPolygon2D" parent="RocksAndTrees"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(1430.4, 804.267, 1332.27, 804.267, 1301.33, 807.467, 1240.53, 868.267, 1221.33, 921.6, 1213.87, 979.2, 1233.07, 1059.2, 1264, 1096.53, 1324.8, 1108.27, 1403.73, 1127.47, 1461.33, 1108.27, 1560.53, 1047.47, 1578.67, 1001.6, 1568, 952.533, 1517.87, 894.933, 1502.93, 872.533, 1483.73, 838.4)
+
+[node name="CollisionPolygon2D7" type="CollisionPolygon2D" parent="RocksAndTrees"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(2171.73, 328.533, 2210.13, 332.8, 2290.13, 325.333, 2324.27, 306.133, 2388.27, 264.533, 2414.93, 230.4, 2460.8, 177.067, 2616.53, 162.133, 2647.47, 157.867, 2693.33, 187.733, 2772.27, 257.067, 2818.13, 286.933, 2852.27, 328.533, 2886.4, 347.733, 2918.43, 430.724, 2943.43, 535.724, 2965.43, 611.724, 3038.43, 625.724, 3054.43, 701.724, 3048.43, 817.724, 2985.43, 969.724, 2902.4, 986.667, 2849.07, 989.867, 2769.07, 974.933, 2757.33, 971.733, 2718.93, 1009.07, 2643.2, 1028.27, 2589.87, 1024, 2536.53, 1001.6, 2494.93, 948.267, 2464.43, 898.724, 2463.43, 839.724, 2487.47, 789.333, 2518.4, 712.533, 2579.2, 636.8, 2613.33, 625.067, 2570.67, 595.2, 2518.4, 610.133, 2434.13, 656, 2363.09, 670.724, 2289.76, 648.058, 2245.76, 728.058, 2145.76, 764.058, 2059.09, 742.724, 1957.76, 750.724, 1863.09, 696.058, 1755.09, 629.391, 1691.09, 566.724, 1691.09, 440.058, 1773.76, 340.058, 1863.09, 262.724, 1971.09, 249.391, 2083.09, 249.391)
+
+[node name="CollisionPolygon2D8" type="CollisionPolygon2D" parent="RocksAndTrees"]
+position = Vector2(-500.427, 205.276)
+polygon = PackedVector2Array(1235.43, -867.276, 1317.33, -716.8, 1396.27, -590.933, 1498.43, -424.276, 1641.43, -310.276, 1598.43, -189.276, 1609.6, -142.933, 1658.67, -2.13333, 1713.43, 60.7244, 1815.43, 121.724, 1980.43, 41.7244, 2134.43, -77.2756, 2266.67, -9.6, 2453.33, 17.0667, 2511.43, -7.27563, 2617.43, -188.276, 2701.43, -108.276, 2857.43, -43.2756, 2971.43, -83.2756, 3037.43, -285.276, 2900.43, -340.276, 2904.43, -715.276, 2941.43, -736.276, 3028.43, -912.276, 3050.67, -1040, 2909.43, -1187.28, 2905.43, -1560.28, 739.427, -1562.28, 744.427, -1453.28, 898.427, -1332.28, 968.427, -1189.28, 1024.43, -1085.28, 1114.43, -1005.28)

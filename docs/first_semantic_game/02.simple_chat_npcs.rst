@@ -11,15 +11,13 @@ The NPC Sprite
 Here we will create a basic sprite that we can attach chat functionality to.
 
 1. In the ``ArguingTrolls`` scene that we created in :doc:`01.project_setup`
-   insert an ``Area2D`` node and rename it to  ``NPC``.
-2. Add a ``CollisionShape2D`` rectangle to the NPC. This will be useful 
-   later and removes the yellow warning in the workspace.
-3. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
+   insert an ``Node2D`` node and rename it to  ``NPC``.
+2. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
    makes a visible sprite for our character.
-4. To set the image for our NPC sprite, copy the troll portrait into 
+3. To set the image for our NPC sprite, copy the troll portrait into 
    the project. Then locate and choose the image as an ``ImageTexture`` 
    in the properties panel for the ``Sprite2D`` node.
-5. Drag the NPC image near the center of the scene. Build and run the project to
+4. Drag the NPC image near the center of the scene. Build and run the project to
    see the river troll NPC token.
 
 Meet Gralk:
@@ -40,7 +38,7 @@ we will extend this node type to create ``ChatAI`` for GPT-4 driven NPCs and
 ``ChatPlayer`` for player characters.
 
 Right-click the filesystem dock and select "New Script...". **Make sure the language 
-is set to C#** and it inherits from ``Area2D``.
+is set to C#** and it inherits from ``Node2D``.
 
 Save this script as ``ChatEntity.cs`` in the project's root directory.
 
@@ -49,7 +47,7 @@ To register this script with the Godot editor, add the ``[GlobalClass]`` attribu
 .. code-block:: csharp
 
     [GlobalClass]
-    public partial class ChatEntity : Area2D
+    public partial class ChatEntity : Node2D
     {
         ...
     }
@@ -112,6 +110,7 @@ by the main game class.
 
     internal ChatEntity _inConvoWith;
 
+Next, we will add methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
 
 Now the completed ``ChatEntity`` class should look like this:
 
@@ -121,7 +120,7 @@ Now the completed ``ChatEntity`` class should look like this:
     using System;
 
     [GlobalClass]
-    public partial class ChatEntity : Area2D
+    public partial class ChatEntity : Node2D
     {
         [Export]
         public string ChatName;
@@ -394,8 +393,8 @@ Modify ``ArguingTrolls`` to connect the two trolls together.
            GD.Print("Semantic Kernel is ready!");
 
            // Get the troll ChatEntities
-           ChatEntity eastTroll = GetNode<ChatEntity>("East Troll");
-           ChatEntity westTroll = GetNode<ChatEntity>("West Troll");
+           ChatEntity eastTroll = GetNode<ChatEntity>("EastTroll");
+           ChatEntity westTroll = GetNode<ChatEntity>("WestTroll");
 
            eastTroll._inConvoWith = westTroll;
            westTroll._inConvoWith = eastTroll;
