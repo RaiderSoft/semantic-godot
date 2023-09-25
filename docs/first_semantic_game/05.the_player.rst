@@ -254,15 +254,110 @@ vicinity. Besides calling these base methods, we'll also emit a signal that the 
 Part 2: Using the ChatPlayer Node
 ---------------------------------
 
-TODO
+Having written the ``ChatPlayer`` script, we're now ready to add a ``ChatPlayer`` node to the
+Seraphis scene. Doing so will enable the player to interact with Gralk and other ``ChatAI`` NPCs.
 
 Attaching to Seraphis
 ^^^^^^^^^^^^^^^^^^^^^
 
-* Add ``ChatPlayer`` to the Seraphis scene (should be in "Create New Node" dialogue; rebuild if not).
-* Set ``ChatName`` and (optionally) ``ChatDescr`` properties.
-* Add a ``CollisionShape2D`` as a child of the ``ChatAI`` node. Give the ``CollisionShape2D`` a suitable shape (such as a circle with a radius of 75 px).
-* Also edit the *Seraphis.cs* script so that the player cannot move while in a conversation.
+First, open up the *seraphis.tscn* scene that we made previously. Add a new ``ChatPlayer`` node as
+a child of the ``Seraphis`` node.
+
+.. note::
+
+    Since we used the ``[GlobalClass]`` attribute on the ``ChatPlayer`` script, it should show up
+    as an option in the "Create New Node" dialogue box. If it is *not* showing up, you may have to
+    rebuild the project first. You can do this by clicking the "Build" button in the top-right
+    corner of the screen. For more information about Godot's global classes, see
+    https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html.
+
+On the ``ChatPlayer`` node, set the ``ChatName`` property to "Seraphis". In this project, setting
+``ChatDescr`` is not necessary for player characters. Feel free to leave it blank or set it to any
+appropriate description.
+
+Since the ``ChatPlayer`` node inherits from ``Area2D``, it expects to find some sort of collision
+node as one of its children. Let's add a ``CollisionShape2D`` as a child of the ``ChatPlayer``
+node. Then set the following property:
+
+* CollisionShape2D > Shape = CircleShape2D
+
+For the ``CircleShape2D``, set the following property:
+
+* CircleShape2D > Radius = 75px
+
+.. tip::
+
+    You can change the shape to anything that seems appropriate to you. But remember that the
+    ``ChatPlayer`` node won't be able to "see" anything until it enters the collision shape, so
+    make sure that the shape extends some distance beyond the borders of the sprite.
+
+Your Seraphis scene should now look something like this:
+
+.. image:: seraphis_screenshot.png
+   :alt: The Seraphis Scene
+   :width: 891px
+   :align: center
+
+Updating Seraphis Script
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Finally, we also need to make a small change the *Seraphis.cs* script. Right now, it will be
+possible for the player to move around while in a conversation. This might be confusing when
+editing messages, as arrow key input could be meant to move the character around on the map or it
+could be meant to move the cursor around in the text input box. To solve this problem, we'll just
+make it impossible for the player to move while in a conversation.
+
+To implement this solution, we'll need our *Seraphis.cs* script to have a reference to the
+``ChatPlayer`` node. Open up the script and declare a new property called ``MyChatPlayer``. Then,
+in the ``_Ready()`` method, search for the ``ChatPlayer`` node and set ``MyChatPlayer`` to
+reference it.
+
+.. code-block:: csharp
+
+    // The ChatPlayer node
+    public ChatPlayer MyChatPlayer;
+
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
+    {
+        // Set up MyChatPlayer
+        MyChatPlayer = FindChild("ChatPlayer") as ChatPlayer;
+        if (MyChatPlayer == null)
+            GD.PrintErr(Name + " cannot find ChatPlayer");
+    }
+
+Now that we have access to the ``ChatPlayer`` node, we can check to see whether it is in a
+conversation by calling the ``InConvo()`` method. If it is in a conversation, we'll prevent the
+player from moving by setting velocity to zero. Otherwise, we'll allow the player to move like
+normal. To achieve this behavior, change the ``_PhysicsProcess()`` method to the following:
+
+.. code-block:: csharp
+
+    // Called once per physics tick
+    public override void _PhysicsProcess(double delta)
+    {
+        // In a conversation, cannot move
+        if (MyChatPlayer.InConvo())
+        {
+            Velocity = Vector2.Zero;
+        }
+        // Not in a conversation, can move
+		else
+        {
+            // Get input vector
+            var velocity = Input.GetVector("move_left", "move_right", "move_up", "move_down");
+
+            // Set correct magnitude
+            if (velocity.Length() > 0)
+                velocity = velocity.Normalized() * Speed;
+
+            // Set Velocity property of this CharacterBody2D
+            Velocity = velocity;
+        }
+
+        // Call Godot's built-in function for physics-based movement
+        MoveAndSlide();
+    }
 
 Try It Out
 ^^^^^^^^^^
