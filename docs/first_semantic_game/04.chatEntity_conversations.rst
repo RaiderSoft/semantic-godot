@@ -28,7 +28,8 @@ section. The first thing we need to do is to change this script so that it inher
 
     Changing ``ChatEntity`` to inherit from ``Area2D`` will break the ``ArguingTrolls`` scene
     created in sections :doc:`01.project_setup` and :doc:`02.simple_chat_npcs`. This is expected.
-    You may delete the ``ArguingTrolls`` scene at this point.
+    You may delete the ``ArguingTrolls`` scene at this point, including the files
+    *arguing_trolls.tscn*, *ArguingTrolls.cs*, and *npc.tscn*.
 
 Nearby ChatEntities
 ^^^^^^^^^^^^^^^^^^^
@@ -295,9 +296,11 @@ something like the following text:
     THE TRAVELER GETS A HINT, BUT MUST GENERATE THE ANSWER THEMSELVES TO CROSS THE BRIDGE.
     !!!
 
-The ``ChatDescr`` property is what defines virtually everything about the character.
-It can require a bit of trial and error to get it right. Consider looking
-at tools like `Promptfoo <https://github.com/promptfoo/promptfoo>`_.
+.. tip::
+
+    The ``ChatDescr`` property is what defines virtually everything about the character.
+    It can require a bit of trial and error to get it right. Consider looking
+    at tools like `Promptfoo <https://github.com/promptfoo/promptfoo>`_.
 
 Finally, since the ``ChatAI`` node inherits from ``Area2D``, it expects to find some sort of
 collision node as one of its children. Let's add a ``CollisionShape2D`` as a child of the
