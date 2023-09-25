@@ -118,7 +118,7 @@ might want to expand upon them in the ``ChatAI`` or ``ChatPlayer`` scripts, so w
         _nearbyChatEntities.Add(enteringChatEntity);
     }
 
-    // Called when another ChatEntity enters the collision area of this ChatEntity
+    // Called when another ChatEntity exits the collision area of this ChatEntity
     protected virtual void OnChatEntityExited(ChatEntity exitingChatEntity)
     {
         _nearbyChatEntities.Remove(exitingChatEntity);
