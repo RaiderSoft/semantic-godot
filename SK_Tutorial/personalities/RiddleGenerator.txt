@@ -1,0 +1,132 @@
+Generate a children's fantasy limerick related to the subject of {{ $subject }}. 
+The limerick should not only rhyme, it should also make sense and maintain continuity. The limerick should tell a story or describe a character.
+
+- Use grade school vocabulary, particularly for the last word of the limerick. 
+- Make the last word very predictable and not at all creative.
+- Respond with just the limerick and no other text. 
+
+The limerick must make sense in the context of the Dungeons and Dragons 5E universe and not violate any of the Forgotten Realms lore.
+
+Examples of Bad Limericks
+=========================
+
+There once was a fish in a river,
+Whose scales would all shimmer and quiver.
+He'd leap with a splash,
+In a joyous dash,
+Spreading magic as the best giver.
+
+This limerick does not make any sense. The best giver?
+
+---
+
+There once was a river so wide,
+Where creatures of magic reside.
+With a whispering breeze,
+And rustling trees,
+It flowed with a mystical tide.
+
+Rivers do not have tides. Oceans have tides.
+
+---
+
+For the riddle bank: In a castle, hidden from sight,
+Lived vampires who loved the night.
+With a cloak and a grin,
+They'd invite you in,
+Then vanish in the moonlight's light.
+
+The moonlight's light?! No one would say that.
+
+---
+
+In a world where the magic's quite real,
+Familiars have a special appeal.
+With a purr, bark, or tweet,
+Their magic's so neat,
+And they help their wizards to heal.
+
+This is a good limerick, but it does not make sense in the context of Dungeons and Dragons 5E. Familiars don't usually heal.
+
+---
+
+In a forest as day took its leave,
+Dusk elves danced in the soft evening weave.
+With a twirl and a bow,
+Under the moon's gentle glow,
+They vanished, as stars took their eve.
+
+bow does not rhyme with glow!!!! This is NOT a limerick.
+Stars took their eve? It doesn't make sense either.
+
+---
+
+In the twilight, as day took its leave,
+Dusk elves danced, as if to deceive.
+With a twirl and a spin,
+In the soft, dimming din,
+They vanished, as stars start to weave.
+
+This version is better because spin rhymes with din, but no one would guess that stars weave. This is a bad limerick.
+
+---
+
+In a forest, shrouded in fog,
+Lived a gnome with his faithful dog.
+With a wave of his hand,
+And a command so grand,
+They'd vanish, just like a mirage.
+
+mirage does not rhy with fog or dog. This is not a limerick.
+
+Examplse of Good Limericks
+==========================
+
+In a garden enchanted and grand,
+A wizard with green, leafy hand,
+Cultivated vines,
+In magical designs,
+And danced with the trees in his land.
+
+This is good because grand != hand != land, and land is predictable.
+
+---
+
+For the riddle bank: There once was a river so clear,
+Where mermaids would often appear.
+With a flip of their tail,
+And a shimmering veil,
+They'd vanish, leaving wonder and cheer.
+
+Same as above. Cheer fits the rhyme scheme and it makes sense with the content of the poem.
+
+---
+
+In a castle, hidden from sight,
+Lived vampires who loved the night.
+With a cloak and a fang,
+They'd start with a bang,
+And disappear at first light.
+
+A better version of the bad example above. A simple last word that makes sense.
+
+---
+
+In a meadow, under the sun's glance,
+Grew a garden of plants in a trance.
+With petals so bright,
+In the soft morning light,
+They woke up and started to dance.
+
+I think what I am honing in on here is that the last line should be predictable, especially the last word.
+I love this one.
+
+---
+
+There once was a knight, brave and bold,
+With a sword that was bloody and old.
+He'd fight with a roar,
+On every shore,
+Defending the weak, we are told.
+
+Beautiful! Subject was "bloody swords"

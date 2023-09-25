@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dsil0ngbghq8j"]
+
+[ext_resource type="PackedScene" uid="uid://c00v2vjgr5fr5" path="res://map.tscn" id="1_bejph"]
+[ext_resource type="PackedScene" uid="uid://cxhmgyxjjgf4c" path="res://characters/seraphis.tscn" id="2_egctf"]
+[ext_resource type="PackedScene" uid="uid://b6qtv7cv7w4n8" path="res://characters/gralk.tscn" id="4_q82yy"]
+
+[node name="Level" type="Node2D"]
+metadata/_edit_horizontal_guides_ = [-1271.0]
+
+[node name="Map" parent="." instance=ExtResource("1_bejph")]
+
+[node name="Gralk" parent="." instance=ExtResource("4_q82yy")]
+position = Vector2(-80, 578)
+
+[node name="Seraphis" parent="." instance=ExtResource("2_egctf")]
+position = Vector2(-660, 278)
+
+[node name="Camera2D" type="Camera2D" parent="Seraphis"]
+zoom = Vector2(0.75, 0.75)
+limit_left = -2400
+limit_top = -1350
+limit_right = 2400
+limit_bottom = 1350

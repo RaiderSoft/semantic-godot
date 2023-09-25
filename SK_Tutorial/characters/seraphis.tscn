@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://cxhmgyxjjgf4c"]
+
+[ext_resource type="Script" path="res://characters/Seraphis.cs" id="1_msgx7"]
+[ext_resource type="Script" path="res://ChatPlayer.cs" id="2_heyoo"]
+[ext_resource type="Texture2D" uid="uid://mjtrf0k3u0i4" path="res://art/seraphis.png" id="3_no21f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mdko3"]
+size = Vector2(100, 100)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_5dcll"]
+radius = 100.0
+
+[node name="Seraphis" type="CharacterBody2D"]
+motion_mode = 1
+script = ExtResource("1_msgx7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_mdko3")
+
+[node name="ChatPlayer" type="Area2D" parent="."]
+script = ExtResource("2_heyoo")
+ChatName = "Seraphis"
+ChatDescr = "An elf named Seraphis."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ChatPlayer"]
+shape = SubResource("CircleShape2D_5dcll")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.141, 0.141)
+texture = ExtResource("3_no21f")
