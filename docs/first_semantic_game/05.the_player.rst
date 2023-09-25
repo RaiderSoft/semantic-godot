@@ -17,10 +17,9 @@ Part 1: Writing the ChatPlayer Script
 -------------------------------------
 
 To start, we'll write the ``ChatPlayer`` script, which will extend ``ChatEntity`` and will define
-how players can interact with AI-powered NPCs. Right click the filesystem dock and select
-"New Script...". Make sure the language is set to C# and it inherits from ``ChatEntity``. Save the
-script as *ChatPlayer.cs*.
-
+how players can interact with AI-powered NPCs. Right click the filesystem dock and create a new
+script. Make sure the language is set to C# and it inherits from ``ChatEntity``. Save the script as
+*ChatPlayer.cs*.
 Once the script is created, open it up and add the ``[GlobalClass]`` attribute above the class
 declaration.
 
@@ -97,14 +96,14 @@ indicating that.
         {
             ChatEntity nearestChatEntity = NearestChatEntity();
             if (nearestChatEntity != null)
-                newControlHint = "Press SHIFT to talk with " + nearestChatEntity.ChatName;
+                newControlHint = $"Press SHIFT to talk with {nearestChatEntity.ChatName}";
         }
         // If the control hint should be different, update it
         if (newControlHint != _controlHint)
         {
             _controlHint = newControlHint;
-            GD.Print("Control Hint: " + _controlHint);
             EmitSignal("ControlHintUpdated", _controlHint);
+            GD.Print($"Control Hint: {_controlHint}");
         }
     }
 
@@ -163,11 +162,11 @@ them and will emit the corresponding signal.
 
         // If otherChatEntity is a ChatAI, notify it of the start of the conversation
         if (otherChatEntity is ChatAI otherChatAI)
-            otherChatAI.Notify(ChatName + " has started a conversation with you.");
+            otherChatAI.Notify($"{ChatName} has started a conversation with you.");
 
         // Indicate that a conversation was started
-        GD.Print("Started a conversation with " + otherChatEntity.ChatName);
         EmitSignal(SignalName.ConvoStarted);
+        GD.Print($"Conversations: Started a conversation with {otherChatEntity.ChatName}");
 
         // Return success
         return true;
@@ -183,11 +182,11 @@ them and will emit the corresponding signal.
 
         // If otherChatEntity is a ChatAI, notify it of the end of the conversation
         if (otherChatEntity is ChatAI otherChatAI)
-            otherChatAI.Notify(ChatName + " has ended their conversation with you.");
+            otherChatAI.Notify($"{ChatName} has ended their conversation with you.");
 
         // Indicate that a conversation was ended
-        GD.Print("Ended a conversation with " + otherChatEntity.ChatName);
         EmitSignal(SignalName.ConvoEnded);
+        GD.Print($"Conversations: Ended a conversation with {otherChatEntity.ChatName}");
 
         // Return success
         return true;
@@ -240,7 +239,7 @@ vicinity. Besides calling these base methods, we'll also emit a signal that the 
     {
         base.OnChatEntityEntered(enteringChatEntity);
         EmitSignal("ChatEntityAdded", enteringChatEntity);
-        GD.Print(enteringChatEntity + " has entered your vicinity");
+        GD.Print($"Nearby Entities: {enteringChatEntity.ChatName} has entered your vicinity");
     }
 
     // Called when another ChatEntity exits the collision area of this ChatEntity
@@ -248,7 +247,7 @@ vicinity. Besides calling these base methods, we'll also emit a signal that the 
     {
         base.OnChatEntityExited(exitingChatEntity);
         EmitSignal("ChatEntityRemoved", exitingChatEntity);
-        GD.Print(exitingChatEntity + " has exited your vicinity");
+        GD.Print($"Nearby Entities: {exitingChatEntity.ChatName} has exited your vicinity");
     }
 
 Part 2: Using the ChatPlayer Node
@@ -362,5 +361,72 @@ normal. To achieve this behavior, change the ``_PhysicsProcess()`` method to the
 Try It Out
 ^^^^^^^^^^
 
-* Will need to hardcode some messages into the script, perhaps when a conversation is started.
-* Can see stuff happening in the terminal ("Output" on Godot).
+Now that the ``ChatEntity``, ``ChatAI``, and ``ChatPlayer`` scripts have all been completed and we
+have them attached to the Gralk and Seraphis scenes, we should be able to hold a simple
+conversation between the player and Gralk.
+
+First, since we haven't created the UI yet, we don't have a way to write messages while the game is
+running. For now, let's hard code a message into the ``ChatPlayer`` script. Add the following line
+just before the return statement in the ``StartConvo()`` method. Now the message "Hello! How are
+you on this fine day?" will be sent automatically whenever we start a conversation.
+
+.. code-block:: csharp
+
+    public override bool StartConvo(ChatEntity otherChatEntity)
+    {
+        (...)
+
+        // (Temporary) Send greeting message to otherChatEntity
+        SendMsg("Hello! How are you on this fine day?");
+
+        // Return success
+        return true;
+    }
+
+With this set up, let's test everything to make sure it is working. Open *level.tscn* and run the
+scene. You should immediately see the following message in the Output tab:
+
+.. code-block:: text
+
+    Control Hint: Use the arrow keys to move
+
+Move toward Gralk. When you get close enough, the following messages should show up:
+
+.. code-block:: text
+
+    Nearby Entities: Gralk has entered your vicinity
+    Control Hint: Press SHIFT to talk with Gralk
+
+Press SHIFT to start a conversation with Gralk. You should then see the following:
+
+.. code-block:: text
+
+    NOTIFY: Seraphis has started a conversation with you.
+    Conversations: Started a conversation with Gralk
+    Seraphis: Hello! How are you on this fine day?
+    Control Hint: Press ESC to end the conversation
+
+After a moment, you should get a response from Gralk that looks something like this:
+
+.. code-block:: text
+
+    Gralk: Ah, greetings, traveler! I am Gralk the Wise, guardian of this bridge. I'm as well as a troll can be, thank you. Now, before you cross, there's a small matter of a riddle to solve. Do you have a subject in mind, preferably related to the Forgotten Realms universe?
+
+End the conversation by pressing ESC. You should see the following:
+
+.. code-block:: text
+
+    NOTIFY: Seraphis has ended their conversation with you.
+    Conversations: Ended a conversation with Gralk
+    Control Hint: Press SHIFT to talk with Gralk
+
+Finally, move away from Gralk. Once you have gotten far enough away, the following messages should
+show up in the Output tab:
+
+.. code-block:: text
+
+    Nearby Entities: Gralk has exited your vicinity
+    Control Hint: Use the arrow keys to move
+
+Before moving on to the next section, it would be a good idea to delete the line that we added to
+the ``StartConvo()`` in the ``ChatPlayer`` script.
