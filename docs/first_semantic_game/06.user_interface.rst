@@ -40,10 +40,10 @@ Writing the Script
 ^^^^^^^^^^^^^^^^^^
 
 Now, we'll add the main script for interacting with the UI. It will be attached to the root node
-of the scene (``UserInterface``) and will listen for signals from the ``ChatPlayer`` node and
-update it when necessary.
+of the scene and will listen for signals from the ``ChatPlayer`` node and update it when
+necessary.
 
-Add a C# script to the UserInterface node. Save the script as *UserInterface.cs*.
+Add a C# script to the ``UserInterface`` node. Save the script as *UserInterface.cs*.
 
 Properties
 """"""""""
@@ -87,7 +87,7 @@ the bottom so that the newest messages are always visible.
 .. code-block:: csharp
 
     // Flag for when a message has been added to the message box and so we need to scroll to end
-    private bool _msgBoxHasNewMsg = false;
+    private bool _justAddedNewMsg = false;
 
 Methods for Initialization
 """"""""""""""""""""""""""
@@ -139,6 +139,19 @@ this script.
 Methods for Updating
 """"""""""""""""""""
 
+In ``_Ready()``, we attached the method ``OnNewMsgSendPressed()`` to the ``Pressed`` signal of the
+send button. As such, this method will be called when the send button is pressed (or when the enter
+key is pressed). We just need it to call the ``SendMsg()`` method of the ``ChatPlayer`` node.
+
+.. code-block:: csharp
+
+    // Called when the send button is pressed
+    public void OnNewMsgSendPressed()
+    {
+        MyChatPlayer.SendMsg(_newMsgEdit.Text);
+        _newMsgEdit.Text = "";
+    }
+
 Next, we'll override the node's ``_Process()`` method. In this method, if a new message has just
 arrived, we'll make sure the ScrollContainer is scrolled all the way to the bottom.
 
@@ -155,7 +168,7 @@ arrived, we'll make sure the ScrollContainer is scrolled all the way to the bott
         }
     }
 
-Next, write a method that handles setting the text of the "Control Hint" section.
+This next method will set the text of the "Control Hint" section.
 
 .. code-block:: csharp
 
@@ -196,18 +209,6 @@ labels and find the one that matches the entity we are trying to remove.
                 break;
             }
         }
-    }
-
-The next method will determine what happens when the send button is pressed (or when the enter key
-is pressed). We just need to call the ``SendMsg()`` method of the ``ChatPlayer`` node.
-
-.. code-block:: csharp
-
-    // Called when the send button is pressed
-    public void OnNewMsgSendPressed()
-    {
-        MyChatPlayer.SendMsg(_newMsgEdit.Text);
-        _newMsgEdit.Text = "";
     }
 
 The following two methods are for enabling and disabling text input and button presses in the UI.
@@ -295,8 +296,8 @@ right 20% of the screen by default:
 * Control > Layout > Container Sizing > Horizontal = Expand (checked)
 * Control > Layout > Container Sizing > Stretch Ratio = 1
 
-Finally, we can add the level and UI scenes. Instantiate ``level.tscn`` as a child of the
-``SubViewport``, and instantiate ``user_interface.tscn`` as a child of the ``MarginContainer``. The
+Finally, we can add the level and UI scenes. Instantiate *level.tscn* as a child of the
+``SubViewport``, and instantiate *user_interface.tscn* as a child of the ``MarginContainer``. The
 main scene should now look something like this:
 
 .. image:: main_screenshot.png
@@ -348,3 +349,6 @@ from Gralk via the UI.
    :alt: Gameplay Example
    :width: 960px
    :align: center
+
+At this point, if everything is working correctly, feel free to delete the print statements that we
+had temporarily added to the ``ChatEntity``, ``ChatAI``, and ``ChatPlayer`` scripts.
