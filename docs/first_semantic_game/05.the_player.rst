@@ -33,6 +33,12 @@ declaration.
         (...)
     }
 
+.. warning::
+
+    Godot may automatically add a ``_Ready()`` method to the script. If it does,
+    delete it. An empty ``_Ready()`` method  will prevent the base ``_Ready()``
+    method from being called.
+
 Properties
 ^^^^^^^^^^
 
