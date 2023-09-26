@@ -31,14 +31,14 @@ a dotnet project.
     dotnet add package Microsoft.SemanticKernel --prerelease
 
 
-3. **Create a ArguingTrolls.cs**: 
+3. **Create ArguingTrolls.cs**: 
 
     .. code-block:: csharp
 
         using Godot;
         using Microsoft.SemanticKernel;
 
-        public partial class ArguingTrolls : Node
+        public partial class ArguingTrolls : Node2D
         {
             public override void _Ready()
             {
@@ -46,7 +46,7 @@ a dotnet project.
             }
         }
 
-4. **Build the Project**: Press ``F6`` or select ``Project > Build`` from the menu to build the project.
+4. **Run the Scene**: Press ``F6`` or click the ``Run Current Scene`` button.
 
 5. **Verify the Output**: Look for the message "Semantic Kernel is ready!" in the output console. 
 

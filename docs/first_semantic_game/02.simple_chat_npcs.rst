@@ -11,13 +11,13 @@ The NPC Sprite
 Here we will create a basic sprite that we can attach chat functionality to.
 
 1. In the ``ArguingTrolls`` scene that we created in :doc:`01.project_setup`
-   insert an ``Node2D`` node and rename it to  ``NPC``.
+   insert a ``Node2D`` node and rename it to  ``NPC``.
 2. With the ``NPC`` node selected, add a ``Sprite2D`` node. This 
    makes a visible sprite for our character.
-3. To set the image for our NPC sprite, copy the troll portrait into 
-   the project. Then locate and choose the image as an ``ImageTexture`` 
-   in the properties panel for the ``Sprite2D`` node.
-4. Drag the NPC image near the center of the scene. Build and run the project to
+3. To set the image for our NPC sprite, copy the troll portrait (shown below) into 
+   the project. Then in the inspector, set the image as the ``Texture`` property for
+   the ``Sprite2D`` node.
+4. Drag the ``NPC`` node near the center of the scene. Build and run the project to
    see the river troll NPC token.
 
 Meet Gralk:
@@ -73,7 +73,8 @@ Put the following inside the ``ChatEntity`` class.
    public string ChatDescr = "";
 
 After saving the script, attach it to the ``NPC`` node in the main scene.
-Inspect the properties of the NPC, you should see ``ChatName`` and ``ChatDescr``.
+Rebuild the project by clicking the "Build" button in the upper right corner of the 
+editor. Then inspect the properties of the NPC. You should see ``ChatName`` and ``ChatDescr``.
 
 Next, we will add methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
 
@@ -109,8 +110,6 @@ by the main game class.
 .. code-block:: csharp
 
     internal ChatEntity _inConvoWith;
-
-Next, we will add methods for handling messages: ``SendMsg`` and ``ReceiveMsg``.
 
 Now the completed ``ChatEntity`` class should look like this:
 
@@ -152,9 +151,7 @@ Now we will create a new node type called ``ChatAI`` that extends ``ChatEntity``
 and adds the ability to use GPT-4 to generate responses to messages. This class
 will be used for NPCs that can hold interactive conversations. 
 
-Create ``ChatAI.cs`` with the following content and attach it to the NPC node.
-Later in the tutorial we will instantiate two ``ChatAI`` nodes instead of attaching
-the script to the NPC node directly.
+Create ``ChatAI.cs`` with the following content.
 
 .. code-block:: csharp
 
@@ -186,6 +183,10 @@ the script to the NPC node directly.
         protected readonly PromptTemplateEngine _promptRenderer;
     }
 
+**Detach the** ``ChatEntity`` **script from the NPC node and instead attach this new**
+``ChatAI`` **script.** Rebuild the project to register the new ``ChatAI`` node with the Godot editor.
+Later in the tutorial we will instantiate ``ChatAI`` nodes from the inspector instead of attaching
+the script to the NPC node directly.
 
 ChatAI Constructor
 ^^^^^^^^^^^^^^^^^^
@@ -348,8 +349,8 @@ Two Arguing NPCs
 ----------------
 
 In this section, you will learn how to set up NPCs named "East Troll" and 
-"West Troll" to automatically argue with each other using Godot's properties
-panel. These trolls are configured to have a debate about which side of the 
+"West Troll" to automatically argue with each other using Godot's inspector.
+These trolls are configured to have a debate about which side of the 
 river is better.
 
 Creating the East and West Troll Nodes
@@ -357,36 +358,37 @@ Creating the East and West Troll Nodes
 
 1. **Create an NPC Scene**: Drag the ``NPC`` node from the main scene into 
    the filesystem dock to create a new scene. This will convert the node
-   in the main scene to an instance of the new scene.
+   in the main scene to an instance of the new scene. (You can also right
+   click on the ``NPC`` node and select "Save Branch as Scene".)
 2. **Second NPC**: Create a second troll by dragging the 
-   ``NPC.tscn`` scene into the scene tree. This should add a
+   ``npc.tscn`` scene into the scene tree. This should add a
    second instance of the ``NPC`` node to the main scene. 
-3. **Rename Nodes**: Name the nodes ``WestTroll`` the nodes ``EastTroll``. Place the tokens on the left and right sides of the scene, respectively.
+3. **Rename Nodes**: Name the nodes to ``WestTroll`` and ``EastTroll``.
+   Place the tokens on the left and right sides of the scene, respectively.
 
 
 Troll Personalities
 ^^^^^^^^^^^^^^^^^^^
 
-1. **Edit East Troll ChatDescr**: Find the ``ChatDescr`` 
-   in the properties panel. Here, input the description: "I engage in a 
-   passionate debate with the West Troll over why my side of the river is 
-   superior."
+2. **Edit West Troll**: Find the ``ChatName`` property in the inspector and set
+   it to "West Troll". Then find the ``ChatDescr`` property and input the description:
+   "I argue with the East Troll about why my side of the river is far better."
 
-2. **Edit West Troll ChatDescr**: Similar to the East Troll, enter a description that 
-   states, "I argue with the East Troll about why my side of the river is 
-   far better."
+1. **Edit East Troll ChatDescr**: Similar to the West Troll, set ``ChatName`` to
+   "East Troll" and enter a description that states, "I engage in a passionate
+   debate with the West Troll over why my side of the river is superior."
 
 3. **Save and Run**: Save the scene and run your game to ensure that the 
    troll NPCs are in place and ready to argue.
 
-Modify ``ArguingTrolls`` to connect the two trolls together.
+Modify the ``ArguingTrolls.cs`` script to connect the two trolls together.
 
 .. code-block:: csharp
 
    using Godot;
    using Microsoft.SemanticKernel;
 
-   public partial class ArguingTrolls : Node
+   public partial class ArguingTrolls : Node2D
    {
        public override void _Ready()
        {
@@ -409,5 +411,5 @@ Modify ``ArguingTrolls`` to connect the two trolls together.
    }
 
 
-Now run the game and watch the trolls argue!
+Now run the scene and watch the trolls argue!
 

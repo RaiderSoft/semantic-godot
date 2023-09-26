@@ -143,8 +143,8 @@ It has ChatGPT's usual corny style, and it reads like an OpenAI advert, but... /
    02.simple_chat_npcs
    03.movement_and_collisions
    04.chatEntity_conversations
-   04.b_using_chatEntity
-   05.user_interface
-   06.evaluating_guesses
-   07.treasure_chest
-   08.additional_resources
+   05.the_player
+   06.user_interface
+   07.evaluating_guesses
+   08.treasure_chest
+   09.additional_resources
