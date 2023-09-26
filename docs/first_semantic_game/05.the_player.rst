@@ -36,7 +36,7 @@ declaration.
 Properties
 ^^^^^^^^^^
 
-With the ``ChatPlayer`` class is set up, we can add a few properties to it. First, add a
+With the ``ChatPlayer`` class set up, we can add a few properties to it. First, add a
 ``_controlHint`` property. This will hold a message that will be displayed to the player to
 indicate what kinds of inputs and actions they can do at any given moment.
 
