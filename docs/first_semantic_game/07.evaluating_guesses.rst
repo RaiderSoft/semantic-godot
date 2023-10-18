@@ -4,3 +4,113 @@ Evaluating Guesses
 In this section, we will learn how to extend the ``ChatAI`` node so that we can evaluate the
 player's guesses to the troll's riddle. By the end, we will have a troll that disappears when the
 correct guess is provided.
+
+In this section we're going to give Gralk the ability to generate, give, and
+evaluate riddles. We'll subclass ``ChatAI`` to create ``TrollAI``. This class will come
+with some additional logic to handle the generation of a riddle and to evaluate
+whether or not the riddle has been solved.
+
+Part 1: Writing the TrollAI Class
+---------------------------------
+
+First, let's prepare our workspace by creating a new file named ``TrolAI.cs``
+
+We'll start by adding some necessary using directives to the top of our script:
+
+```csharp
+using Godot;
+using System;
+using System.Threading.Tasks;
+using System.IO;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.AI.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI.ChatCompletion;
+using Microsoft.Extensions.Configuration;
+```
+
+We then declare our ``TrollAI`` class, which should inherit from the ``ChatAI`` class. 
+
+```csharp
+[GlobalClass]
+public partial class TrollAI : ChatAI
+{
+}
+```
+
+Setting Up Evaluation
+^^^^^^^^^^^^^^^^^^^^^
+
+We want to create a separate chat history evaluating whether or not the player
+has solved the riddle. We define a private ``OpenAIChatHistory`` object for this purpose.
+Gralk's messages will be forwarded to an evaluator that will return True if,
+based on the conversation, Gralk believes the player has solved the riddle.
+
+```csharp
+private OpenAIChatHistory _eval_limerick_chat;
+```
+
+Next, we override the ``_Ready()`` method. Initialized within it we have the
+chat history recorded earlier. The chat history sends a system message notifying
+about the evaluator AI's task.
+
+```csharp
+public override void _Ready()
+{
+    _eval_limerick_chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
+    var eval_template = File.ReadAllText("personalities/Evaluator.txt");
+    var eval_context = _kernel.CreateNewContext();
+    string eval_prompt = _promptRenderer.RenderAsync(eval_template, eval_context).GetAwaiter().GetResult();
+    _eval_limerick_chat.AddSystemMessage(eval_prompt);
+
+    base._Ready();
+}
+```
+
+Enhancing 'ReceiveMsg'
+^^^^^^^^^^^^^^^^^^^^^
+
+The ``ReceiveMsg`` method is called every time the troll receives a message. In
+our case, these messages will be from the player that meets Gralk.
+
+We're creating an async version of ``ReceiveMsg()`` for ease of use with the AI chat models.
+
+First, we write a wrapper for the async version.
+
+```csharp
+public override void ReceiveMsg(string msg)
+{
+    // Call the async method but don't wait for it
+    Task.Run(() => ReceiveMsgAsync(msg));
+}
+```
+
+Next, we'll write the real ``ReceiveMsgAsync()`` method that will be called by the wrapper.
+
+This method starts by adding a new user message (the message received from the
+player) to the chat history. Then, it generates a riddle based on the received
+message before appending the response to the chat history and sending it to the
+receiving entity.
+
+```csharp
+public async Task ReceiveMsgAsync(string msg)
+{
+    try
+    {
+        // Add the message to the chat history.
+        _chat.AddUserMessage(msg);
+
+        ChatRequestSettings settings = new();
+        var riddle_chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
+        ...
+        _eval_limerick_chat.AddUserMessage(full_reply);
+        SendMsg(full_reply);  // Send the reply to the other entity via the MsgSent signal
+
+        ...
+        _eval_limerick_chat.AddAssistantMessage(eval_limerick_reply);
+    }
+    catch (Exception ex)
+    {
+    ...
+    }
+}
+```
