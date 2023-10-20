@@ -326,8 +326,6 @@ to override the ``_Ready()`` method with the following code. This code searches 
         UserInterface userInterface = GetNode<UserInterface>("MarginContainer/UserInterface");
         userInterface.MyChatPlayer = chatPlayer;
     }
-<<<<<<< HEAD
-=======
 
 Try It Out
 ^^^^^^^^^^
@@ -354,4 +352,3 @@ from Gralk via the UI.
 
 At this point, if everything is working correctly, feel free to delete the print statements that we
 had temporarily added to the ``ChatEntity``, ``ChatAI``, and ``ChatPlayer`` scripts.
->>>>>>> main

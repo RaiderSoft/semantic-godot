@@ -2,156 +2,13 @@ Evaluating Guesses
 ===================
 
 In this section, we will extend the ``ChatAI`` node so that we can evaluate the
-player's guesses to the troll's riddle. By the end, 
-we will have a troll that generates a limerick puzzle from a provided subject, and
-moves out of the way when the correct answer is provided.
+player's guesses to the troll's riddle. By the end, we will have a troll that
+generates a limerick puzzle from a provided subject, and moves out of the way
+when the correct answer is provided.
 
 1. **Introduction to TrollAI**
 
-   We'll build upon the ChatAI class to create a more specialized AI - TrollAI.
-
-   First, we declare the TrollAI class by inheriting from our base ChatAI class
-   and adding a new private variable and a delegate.
-
-   .. code-block:: csharp
-
-      [GlobalClass]
-      public partial class TrollAI : ChatAI
-      {
-          [Signal]
-          public delegate void RiddleAnsweredEventHandler();
-          private OpenAIChatHistory _eval_limerick_chat;
-      }
-      
-   The delegate RiddleAnsweredEventHandler will handle a signal when a riddle is
-   answered correctly. The _eval_limerick_chat is an additional chat history for
-   evaluation of riddle's answer.
-
-2. **Overriding the _Ready() Function**
-
-   Our TrollAI has a different initialization process as compared to our base
-   ChatAI class, this is implemented by overriding the _Ready() method. Here we
-   initialize _eval_limerick_chat, prepare eval_template by loading a file,
-   create eval_context based on the kernel and then finally render eval_prompt:
-
-   .. code-block:: csharp
-
-      public override void _Ready()
-      {
-          _eval_limerick_chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
-          var eval_template = File.ReadAllText("personalities/Evaluator.txt");
-          var eval_context = _kernel.CreateNewContext();
-          string eval_prompt = _promptRenderer.RenderAsync(eval_template, eval_context).GetAwaiter().GetResult();
-          _eval_limerick_chat.AddSystemMessage(eval_prompt);
-  
-          base._Ready();
-      }
-
-4. **Handling Incoming Messages**
-
-   The ReceiveMsg method in our TrollAI class receives a chat message from the
-   user, processes it, generates a riddle based on the subject of the user's
-   message, and ultimately responds to the user with the generated riddle. It
-   also handles incoming chat messages asynchronously using the method
-   ReceiveMsgAsync.
-
-   .. code-block:: csharp
-
-      public override void ReceiveMsg(string msg)
-      {
-          Task.Run(() => ReceiveMsgAsync(msg));
-      }
-
-      public async Task ReceiveMsgAsync(string msg)
-      {
-          var msg_template = File.ReadAllText("personalities/Message.txt");
-          var context = _kernel.CreateNewContext();
-          context["interlocutor"] = _inConvoWith.ChatName;
-          context["message"] = msg;
-          string fullMsg = _promptRenderer.RenderAsync(msg_template, context).GetAwaiter().GetResult();
-          _chat.AddUserMessage(fullMsg);
-    
-          ChatRequestSettings settings = new();
-          var riddle_chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
-          var riddle_template = File.ReadAllText("personalities/RiddleGenerator.txt");
-          var riddle_context = _kernel.CreateNewContext();
-          riddle_context["subject"] = msg;
-          string riddle_prompt = _promptRenderer.RenderAsync(riddle_template, riddle_context).GetAwaiter().GetResult();
-          riddle_chat.AddSystemMessage(riddle_prompt);
-    
-          string riddle_reply = await _chatGPT.GenerateMessageAsync(riddle_chat, settings);
-          string riddle_result = $"For the riddle bank: {riddle_reply}";
-          GD.Print(riddle_result);
-          _chat.AddSystemMessage(riddle_result);
-    
-          string full_reply = await _chatGPT.GenerateMessageAsync(_chat, settings);
-          SendMsg(full_reply);
-          _chat.AddAssistantMessage(full_reply);
-          _eval_limerick_chat.AddUserMessage(full_reply);
-    
-          var eval_limerick_reply = await _chatGPT.GenerateMessageAsync(_eval_limerick_chat, new ChatRequestSettings());
-    
-          GD.Print($"EVAL REPLY {eval_limerick_reply}");
-          if (eval_limerick_reply == "True")
-          {
-              GD.Print("TROLL IS HAPPY");
-              CallDeferred("emit_signal", SignalName.RiddleAnswered);
-          }
-
-          _eval_limerick_chat.AddAssistantMessage(eval_limerick_reply);
-      }
-
-   In the *ReceiveMsgAsync* method, it's first adding the user's message to the
-   *_chat*. Then it's creating new chat histories for the riddles after loading
-   the templates and creating the corresponding contexts. Subsequently, the
-   riddle is generated and added to the *_chat* as part of the system message.
-
-   Next, it's sending the generated reply to the *_chat* and adding the
-   assistant's message to the *_chat* as well as *_eval_limerick_chat*.
-
-   Afterwards, it's generating the message asynchronously for the
-   *_eval_limerick_chat* to which the assistant's message was previously added.
-
-   Lastly, it's printing the evaluation reply and if the reply is True, meaning
-   the user guessed the riddle right, it's signaling an event, RiddleAnswered.
-
-5. **Conclusion**
-
-   By extending and customizing the ChatAI class, we can create an AI that
-   evaluates, generates riddles and chat responses, as well as connect those
-   functionalities with events recognized by the Godot game engine. This
-   customizable AI setup can enhance user engagement, bringing a whole new
-   dimension to the AI chat system. The powerful combination of Microsoft
-   Semantic Kernel, OpenAI's GPT, and Godot proves effective in creating
-   captivating conversational AI.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Prompt Engineering
-==================
-
-Engineering a Limerick Riddle
------------------------------
-
-
-
-The TrollAI Class
------------------
-
-Instructions for creating the TrollAI class:
-Start by creating a new C# script called `TrollAI.cs` and add the following code:
-
+We'll build upon the ChatAI class to create a more specialized AI - TrollAI.
 
 Start by creating a new C# script called `TrollAI.cs` in your Godot project.
 Once you've done that, open the script and add the following namespaces at the top:
@@ -165,70 +22,118 @@ Once you've done that, open the script and add the following namespaces at the t
     using System.Threading.Tasks;
     using System.IO;
 
-Now, proceed by defining the `TrollAI` class as a partial class inheriting from `ChatAI`, and also specify it as a GlobalClass.
+
+Nex we'll declare the TrollAI class by inheriting from our base ChatAI class
+and adding a new private variable and a delegate.
 
 .. code-block:: csharp
 
-    [GlobalClass]
-    public partial class TrollAI : ChatAI
-    {
-        // Your code will go here
-    }
+   [GlobalClass]
+   public partial class TrollAI : ChatAI
+   {
+      [Signal]
+      public delegate void RiddleAnsweredEventHandler();
+      private OpenAIChatHistory _eval_limerick_chat;
+   }
+      
+The delegate RiddleAnsweredEventHandler will handle a signal when a riddle is
+answered correctly. The _eval_limerick_chat is an additional chat history for
+evaluation of riddle's answer.
 
-These namespaces and class definitions set the stage for the troll AI's behavior.
+2. **Overriding the _Ready() Function**
 
-TODO: limerick game before evaluation and moving out of the way.
-
-In your `TrollAI` class, we initialize the `_eval_limerick_chat` variable to manage a chat session
-for evaluating limericks.
-
-.. code-block:: csharp
-
-    public override void _Ready()
-    {
-        _eval_limerick_chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
-        var eval_template = File.ReadAllText("personalities/Evaluator.txt");
-        var eval_context = _kernel.CreateNewContext();
-        string eval_prompt = _promptRenderer.RenderAsync(eval_template, eval_context).GetAwaiter().GetResult();
-        _eval_limerick_chat.AddSystemMessage(eval_prompt);
-        base._Ready();
-    }
-
-1. `_eval_limerick_chat` initializes a new chat session for limerick evaluation.
-2. The evaluator personality is read from a text file `Evaluator.txt`.
-3. A new evaluation context is created.
-4. Asynchronously, the `eval_prompt` is initialized using the template and context.
-5. `eval_prompt` is then added as a system message to `_eval_limerick_chat`.
-
-Message Receiving Logic
------------------------
-
-When a message is received, the `ReceiveMsg` method is called which, in turn, calls the asynchronous `ReceiveMsgAsync` method.
+Our TrollAI has a different initialization process as compared to our base
+ChatAI class, this is implemented by overriding the _Ready() method. Here we
+initialize _eval_limerick_chat, prepare eval_template by loading a file,
+create eval_context based on the kernel and then finally render eval_prompt:
 
 .. code-block:: csharp
 
-    public async Task ReceiveMsgAsync(string msg)
-    {
-        // Code for receiving messages and logic...
-    }
+   public override void _Ready()
+   {
+      _eval_limerick_chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
+      var eval_template = File.ReadAllText("personalities/Evaluator.txt");
+      var eval_context = _kernel.CreateNewContext();
+      string eval_prompt = _promptRenderer.RenderAsync(eval_template, eval_context).GetAwaiter().GetResult();
+      _eval_limerick_chat.AddSystemMessage(eval_prompt);
+  
+      base._Ready();
+   }
 
-This handles message input and updates the chat history. It also generates a new riddle based on the received message.
+4. **Handling Incoming Messages**
 
-The Evaluation Mechanism
--------------------------
-
-The evaluation happens in `ReceiveMsgAsync` method. Here, we add the full reply from the assistant to `_eval_limerick_chat`.
+The ReceiveMsg method in our TrollAI class receives a chat message from the
+user, processes it, generates a riddle based on the subject of the user's
+message, and ultimately responds to the user with the generated riddle. It
+also handles incoming chat messages asynchronously using the method
+ReceiveMsgAsync.
 
 .. code-block:: csharp
 
-    _eval_limerick_chat.AddUserMessage(full_reply);
-    var eval_limerick_reply = await _chatGPT.GenerateMessageAsync(_eval_limerick_chat, new ChatRequestSettings());
+   public override void ReceiveMsg(string msg)
+   {
+      Task.Run(() => ReceiveMsgAsync(msg));
+   }
 
-    if (eval_limerick_reply == "True")
-    {
-        GD.Print("TROLL IS HAPPY");
-        CallDeferred("emit_signal", SignalName.RiddleAnswered);
-    }
+   public async Task ReceiveMsgAsync(string msg)
+   {
+      var msg_template = File.ReadAllText("personalities/Message.txt");
+      var context = _kernel.CreateNewContext();
+      context["interlocutor"] = _inConvoWith.ChatName;
+      context["message"] = msg;
+      string fullMsg = _promptRenderer.RenderAsync(msg_template, context).GetAwaiter().GetResult();
+      _chat.AddUserMessage(fullMsg);
+    
+      ChatRequestSettings settings = new();
+      var riddle_chat = (OpenAIChatHistory)_chatGPT.CreateNewChat();
+      var riddle_template = File.ReadAllText("personalities/RiddleGenerator.txt");
+      var riddle_context = _kernel.CreateNewContext();
+      riddle_context["subject"] = msg;
+      string riddle_prompt = _promptRenderer.RenderAsync(riddle_template, riddle_context).GetAwaiter().GetResult();
+      riddle_chat.AddSystemMessage(riddle_prompt);
+    
+      string riddle_reply = await _chatGPT.GenerateMessageAsync(riddle_chat, settings);
+      string riddle_result = $"For the riddle bank: {riddle_reply}";
+      GD.Print(riddle_result);
+      _chat.AddSystemMessage(riddle_result);
+    
+      string full_reply = await _chatGPT.GenerateMessageAsync(_chat, settings);
+      SendMsg(full_reply);
+      _chat.AddAssistantMessage(full_reply);
+      _eval_limerick_chat.AddUserMessage(full_reply);
+    
+      var eval_limerick_reply = await _chatGPT.GenerateMessageAsync(_eval_limerick_chat, new ChatRequestSettings());
+    
+      GD.Print($"EVAL REPLY {eval_limerick_reply}");
+      if (eval_limerick_reply == "True")
+      {
+         GD.Print("TROLL IS HAPPY");
+         CallDeferred("emit_signal", SignalName.RiddleAnswered);
+      }
 
-Here, if `eval_limerick_reply` returns "True", it indicates that the limerick was correctly formulated, and the Troll is happy. An event is emitted to signal this.
+      _eval_limerick_chat.AddAssistantMessage(eval_limerick_reply);
+   }
 
+In the *ReceiveMsgAsync* method, it's first adding the user's message to the
+*_chat*. Then it's creating new chat histories for the riddles after loading
+the templates and creating the corresponding contexts. Subsequently, the
+riddle is generated and added to the *_chat* as part of the system message.
+
+Next, it's sending the generated reply to the *_chat* and adding the
+assistant's message to the *_chat* as well as *_eval_limerick_chat*.
+
+Afterwards, it's generating the message asynchronously for the
+*_eval_limerick_chat* to which the assistant's message was previously added.
+
+Lastly, it's printing the evaluation reply and if the reply is True, meaning
+the user guessed the riddle right, it's signaling an event, RiddleAnswered.
+
+5. **Conclusion**
+
+By extending and customizing the ChatAI class, we can create an AI that
+evaluates, generates riddles and chat responses, as well as connect those
+functionalities with events recognized by the Godot game engine. This
+customizable AI setup can enhance user engagement, bringing a whole new
+dimension to the AI chat system. The powerful combination of Microsoft
+Semantic Kernel, OpenAI's GPT, and Godot proves effective in creating
+captivating conversational AI.
