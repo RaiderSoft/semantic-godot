@@ -14,8 +14,7 @@ Part 1: Updating ChatEntity
 To get started, open up the *ChatEntity.cs* script that we wrote in the :doc:`02.simple_chat_npcs`
 section. The first thing we need to do is to change this script so that it inherits from an
 ``Area2D`` node. We'll use the collision detection of an ``Area2D`` to detect when another
-``ChatEntity`` is nearby. (Note: Making the following changes may break the ``ArguingTrolls`` scene
-created in sections :doc:`01.project_setup` and :doc:`02.simple_chat_npcs`.)
+``ChatEntity`` is nearby.
 
 .. code-block:: csharp
 
@@ -25,16 +24,26 @@ created in sections :doc:`01.project_setup` and :doc:`02.simple_chat_npcs`.)
         (...)
     }
 
+.. note::
+
+    Changing ``ChatEntity`` to inherit from ``Area2D`` will break the ``ArguingTrolls`` scene
+    created in sections :doc:`01.project_setup` and :doc:`02.simple_chat_npcs`. This is expected.
+    You may delete the ``ArguingTrolls`` scene at this point, including the files
+    *arguing_trolls.tscn*, *ArguingTrolls.cs*, and *npc.tscn*.
+
 Nearby ChatEntities
 ^^^^^^^^^^^^^^^^^^^
 
 Now that ``ChatEntity`` inherits from ``Area2D``, we can write some properties and methods to keep
 track of other nearby entities. This will be used to display a list of entities to the player and
-will allow them to start a conversation with the nearest entity. (Note: We won't set up the NPCs to
-use this feature in *this* project, but it could be useful if you want GPT-4 powered NPCs to be
-able to see and keep track of objects in the world around them.)
+will allow them to start a conversation with the nearest entity.
 
-**List of Nearby Entities**
+.. tip::
+
+    Another use of the nearby entity list might be to give AI-powered NPCs the ability to see and keep track of objects in the world around them.
+
+List of Nearby Entities
+"""""""""""""""""""""""
 
 Let's first set up the list that will hold all of the nearby entities.
 
@@ -43,15 +52,16 @@ Let's first set up the list that will hold all of the nearby entities.
     // List of ChatEntities currently in range
     protected List<ChatEntity> _nearbyChatEntities = new List<ChatEntity>();
 
-Your code editor may give you an error message for this. That's because we're using a C# list class
-and need to indicate that with the appropriate ``using`` statement.
+Your code editor will probably give you an error message for this. That's because we're using a C#
+list class and need to indicate that with the appropriate ``using`` statement at the top of the
+script.
 
 .. code-block:: csharp
 
-    using Godot;
-    using System.Collections.Generic;  // allows us to use the List class
+    using System.Collections.Generic;
 
-**The Area2D Signals**
+The Area2D Signals
+""""""""""""""""""
 
 Now, we want to write a few methods to define what should happen when another entity enters the
 vicinity of this entity. Since ``ChatEntity`` extends Godot's built-in ``Area2D`` node, we can
@@ -93,7 +103,8 @@ additional methods ``OnChatEntityEntered()`` and ``OnChatEntityExited()`` if the
             OnChatEntityExited(exitingChatEntity);
     }
 
-**Other Methods**
+Other Methods
+"""""""""""""
 
 Now we can write the ``OnChatEntityEntered()`` and ``OnChatEntityExited()`` methods. For right now
 these methods will simply add/remove entities from the ``_nearbyChatEntities`` list. However, we
@@ -108,7 +119,7 @@ might want to expand upon them in the ``ChatAI`` or ``ChatPlayer`` scripts, so w
         _nearbyChatEntities.Add(enteringChatEntity);
     }
 
-    // Called when another ChatEntity enters the collision area of this ChatEntity
+    // Called when another ChatEntity exits the collision area of this ChatEntity
     protected virtual void OnChatEntityExited(ChatEntity exitingChatEntity)
     {
         _nearbyChatEntities.Remove(exitingChatEntity);
@@ -225,9 +236,9 @@ Updating the Script
 There is only one thing that we need to add to the ``ChatAI`` script. We've already written out all
 the methods for connecting to Semantic-Kernel and the methods for receiving and sending messages.
 However, now that our NPCs are going to find themselves in a more developed game world, it would be
-appropriate to have some way to allow them to see what's going on around them. To this end, we'll
-add a ``Notify`` method. This method will send a message to Semantic-Kernel and not prompt for any
-sort of reply.
+appropriate to have some way to inform them about what's going on around them. To this end, we'll
+add a ``Notify()`` method. This method will send a message to Semantic-Kernel and not prompt for
+any sort of reply.
 
 .. code-block:: csharp
 
@@ -241,4 +252,75 @@ sort of reply.
 Attaching to Gralk
 ^^^^^^^^^^^^^^^^^^
 
-TODO
+Having updated the scripts, we're now ready to add a ``ChatAI`` node to the Gralk scene. Open up
+the *gralk.tscn* scene that we made in the last section. Then add a new ``ChatAI`` node as a child
+of the ``Gralk`` node.
+
+.. note::
+
+    Since we used the ``[GlobalClass]`` attribute on the ``ChatAI`` script, it should show up as an
+    option in the "Create New Node" dialogue box. If it is *not* showing up, you may have to
+    rebuild the project first. You can do this by clicking the "Build" button in the top-right
+    corner of the screen. For more information about Godot's global classes, see
+    https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_global_classes.html.
+
+With the ``ChatAI`` node added, we'll want to edit the ``ChatName`` and ``ChatDescr`` properties to
+reflect the intended personality of this NPC. Set ``ChatName`` to "Gralk" and set ``ChatDescr`` to
+something like the following text:
+
+.. code-block:: text
+
+    [BANNED PHRASES]
+    apologies for the confusion
+    [END BANNED PHRASES]
+
+    You are now Gralk the Wise, the guardian troll of a bridge over a river within a forest.
+
+    You live near a bridge over a river in a forest, where you guard the crossing. You are revered as a wise being by nearby villagers, though mysterious. 
+
+    You guard the bridge, requiring travelers to solve a riddle. You interact in a calm, thoughtful, style. You very much enjoy a good pun.
+    This is a dialogue and roleplay-heavy game. 
+
+    1. Say hello, chit chat. Let them know they will need to solve a riddle to cross the bridge.
+    2. First ask for a subject related to the forgotten realms universe. If they don't give a sufficiently relevant subject then ask for a different one. 
+    3. Respond with a riddle from the riddle bank. Only use riddles from the riddle bank. Just because something is in the riddle bank does not mean it is valid. Today we are using just fantasy style limerick completion riddles. You can give them a hint if necessary
+
+    The riddle bank is not redacted. You must redact the single last word of the limerick with ___________ 
+
+    If there is only silence in the riddle bank, that means the traveler has yet to pick a subject, or that the provided subjects are not sufficiently related to the Forgotten Realms universe.
+
+    Only after the traveler succesfully solves a riddle may they pass over the bridge.
+
+    !!!
+    DO NOT MOVE IF YOU PROVIDE THE ANSWER. THEY HAVE NOT SOLVED IT IF YOU SAY THE WORD.
+    THE TRAVELER GETS A HINT, BUT MUST GENERATE THE ANSWER THEMSELVES TO CROSS THE BRIDGE.
+    !!!
+
+.. tip::
+
+    The ``ChatDescr`` property is what defines virtually everything about the character.
+    It can require a bit of trial and error to get it right. Consider looking
+    at tools like `Promptfoo <https://github.com/promptfoo/promptfoo>`_.
+
+Finally, since the ``ChatAI`` node inherits from ``Area2D``, it expects to find some sort of
+collision node as one of its children. Let's add a ``CollisionShape2D`` as a child of the
+``ChatAI`` node. Then set the following property:
+
+* CollisionShape2D > Shape = CircleShape2D
+
+For the ``CircleShape2D``, set the following property:
+
+* CircleShape2D > Radius = 75px
+
+.. tip::
+
+    You can change the shape to anything that seems appropriate to you. But remember that the
+    ``ChatAI`` node won't be able to "see" anything until it enters the collision shape, so make
+    sure that the shape extends some distance beyond the borders of the sprite.
+
+Your Gralk scene should now look something like this:
+
+.. image:: gralk_screenshot.png
+   :alt: The Gralk Scene
+   :width: 932px
+   :align: center
