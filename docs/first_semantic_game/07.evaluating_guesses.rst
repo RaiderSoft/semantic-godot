@@ -1,14 +1,18 @@
 Evaluating Guesses
 ===================
 
-In this section, we will extend the ``ChatAI`` node so that we can evaluate the
-player's guesses to the troll's riddle. By the end, we will have a troll that
+When we left off in the UI section we had a player character that could interact
+with a Troll and have a Semantic Kernel powered conversation, but the messages
+were fixed. 
+
+This section is the fun part! We finall get to see Gralk in action :)
+
+Here we will extend the ``ChatAI`` node so that we can have a troll that
 generates a limerick puzzle from a provided subject, and moves out of the way
 when the correct answer is provided.
 
-1. **Introduction to TrollAI**
 
-We'll build upon the ChatAI class to create a more specialized AI - TrollAI.
+1. **Introduction to TrollAI**
 
 Start by creating a new C# script called `TrollAI.cs` in your Godot project.
 Once you've done that, open the script and add the following namespaces at the top:
@@ -40,7 +44,11 @@ The delegate RiddleAnsweredEventHandler will handle a signal when a riddle is
 answered correctly. The _eval_limerick_chat is an additional chat history for
 evaluation of riddle's answer.
 
-2. **Overriding the _Ready() Function**
+**Replace ChatAI node in Gralk scene**
+
+
+
+3. **Overriding the _Ready() Function**
 
 Our TrollAI has a different initialization process as compared to our base
 ChatAI class, this is implemented by overriding the _Ready() method. Here we
@@ -128,12 +136,5 @@ Afterwards, it's generating the message asynchronously for the
 Lastly, it's printing the evaluation reply and if the reply is True, meaning
 the user guessed the riddle right, it's signaling an event, RiddleAnswered.
 
-5. **Conclusion**
 
-By extending and customizing the ChatAI class, we can create an AI that
-evaluates, generates riddles and chat responses, as well as connect those
-functionalities with events recognized by the Godot game engine. This
-customizable AI setup can enhance user engagement, bringing a whole new
-dimension to the AI chat system. The powerful combination of Microsoft
-Semantic Kernel, OpenAI's GPT, and Godot proves effective in creating
-captivating conversational AI.
+TODO: evaluator.txt
